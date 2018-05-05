@@ -30,71 +30,71 @@ TODOS:
 The action types that are available to you as a user depend on the top-level object in your Redux state. The most common is an object, but it's also possible to have arrays, strings, numbers, and booleans as your state.
 
 ### Number
-SET(value)
-INCREMENT(value)
-DECREMENT(value)
+- SET(value)
+- INCREMENT(value)
+- DECREMENT(value)
 ### Boolean
-SET(value)
-TOGGLE
+- SET(value)
+- TOGGLE
 ### String
-SET(value)
+- SET(value)
 ### ARRAY
-ADD(value)
-CONCAT(array)
-SET_ALL(value)
-SET(value, [index, where])
-INSERT(value, index)
-REMOVE_ALL()
-REMOVE(value, [index, where])
+- ADD(value)
+- CONCAT(array)
+- SET_ALL(value)
+- SET(value, [index, where])
+- INSERT(value, index)
+- REMOVE_ALL()
+- REMOVE(value, [index, where])
 ### ARRAY_OF[Booleans, Numbers, String]
 *Boolean*
-TOGGLE_ALL()
-TOGGLE([index, where])
+- TOGGLE_ALL()
+- TOGGLE([index, where])
 *Number*
-INCREMENT_ALL(value)
-INCREMENT(value, [index, where])
-DECREMENT_ALL(value)
-DECREMENT(value, [index, where])
+- INCREMENT_ALL(value)
+- INCREMENT(value, [index, where])
+- DECREMENT_ALL(value)
+- DECREMENT(value, [index, where])
 *String*
 ### ARRAY_OF[Objects]
-MERGE_ALL(obj)
-MERGE(obj, [key, where])
+- MERGE_ALL(obj)
+- MERGE(obj, [key, where])
 ### OBJECT
-ADD(value, key)
-MERGE(value, [key, where])
-REMOVE([key, value])
+- ADD(value, key)
+- MERGE(value, [key, where])
+- REMOVE([key, value])
 ###OBJECT_PATHS_OF[Booleans, Numbers, Strings]
 *Boolean*
-SET_{PATH}(value)
-TOGGLE_{PATH}()
+- SET_{PATH}(value)
+- TOGGLE_{PATH}()
 *Number*
-SET_{PATH}(value)
-INCREMENT_{PATH}(value)
-DECREMENT_{PATH}(value)
+- SET_{PATH}(value)
+- INCREMENT_{PATH}(value)
+- DECREMENT_{PATH}(value)
 *String*
-SET_{PATH}(value)
+- SET_{PATH}(value)
 ###OBJECT_ARRAY
-ADD_TO_{PATH}(value, [index, where])
-REMOVE_ALL_{PATH}()
-REMOVE_FROM_{PATH}([index, where])
-UPDATE_ALL_{PATH}(value)
-UPDATE_{PATH}(value, [index, where])
-SET_ALL_{PATH}(value)
-SET_{PATH}(value, [index, where])
-TOGGLE_ALL_{PATH}()
-TOGGLE_{PATH}([index, where])
-INCREMENT_ALL_{PATH}()
-INCREMENT_{PATH}([index, where])
-DECREMENT_ALL_{PATH}()
-DECREMENT_{PATH}([index, where])
+- ADD_TO_{PATH}(value, [index, where])
+- REMOVE_ALL_{PATH}()
+- REMOVE_FROM_{PATH}([index, where])
+- UPDATE_ALL_{PATH}(value)
+- UPDATE_{PATH}(value, [index, where])
+- SET_ALL_{PATH}(value)
+- SET_{PATH}(value, [index, where])
+- TOGGLE_ALL_{PATH}()
+- TOGGLE_{PATH}([index, where])
+- INCREMENT_ALL_{PATH}()
+- INCREMENT_{PATH}([index, where])
+- DECREMENT_ALL_{PATH}()
+- DECREMENT_{PATH}([index, where])
 ###OBJECT_OBJECT
 // Most likely used for normalization, the path syntax should take care of objects used for organization.
 
-ADD(value) -- auto-increment option?
-MERGE_ALL(value)
-MERGE(value, [key, where])
-REMOVE_ALL()
-REMOVE(value, [key, where])
+- ADD(value) -- auto-increment option?
+- MERGE_ALL(value)
+- MERGE(value, [key, where])
+- REMOVE_ALL()
+- REMOVE(value, [key, where])
 
 ### Number
 
