@@ -1,28 +1,5 @@
-function actionTypeParser(actionType) {
-  const validActions = [
-    'SET_ALL',
-    'SET',
-    'INCREMENT_ALL',
-    'INCREMENT',
-    'DECREMENT_ALL',
-    'DECREMENT',
-    'TOGGLE',
-    'ADD_TO',
-    'ADD',
-    'REMOVE',
-    'UPDATE',
-  ];
-  let verb;
-  let path;
-  for (let action of validActions) {
-    if (actionType.startsWith(action)) {
-      verb = action;
-      path = actionType.replace(verb, '').replace('_', '');
-      return {verb, path}
-    }
-  }
-  return {verb, path} // Undefined if no match
-}
+const actionTypeParser = require('./functions/actionTypeParser');
+const updateAtPath = require('./functions/updateAtPath');
 
 function switch_number(state, action) {
   switch (action.type) {
@@ -99,20 +76,8 @@ function switch_array(state, action) {
 }
 
 function switch_object(state, action) {
-  let {verb, path} = actionTypeParser(action.type);
+  let { verb, path } = actionTypeParser(action.type);
 
-  function updateAtPath(path, obj, callback) {
-    if (typeof obj !== 'object') return obj;
-    const newObj = Object.assign({}, obj);
-    for (let key of Object.keys(obj)) {
-      if (key.toUpperCase() === path) {
-        newObj[key] = callback(obj[key]);
-      } else {
-        newObj[key] = updateAtPath(path, obj[key], callback);
-      }
-    }
-    return newObj;
-  }
   if (path) {
     if (!updateAtPath(path, state, (el) => el)) return { ...state };
     if (verb === 'INCREMENT') return updateAtPath(path, state, (number) => number + action.value);
@@ -123,15 +88,15 @@ function switch_object(state, action) {
           return obj.map(value => {
             if (action.where(value)) {
               // Special case to merge object props instead of setting the value.
-              if (typeof value === 'object') return Object.assign({...value}, action.value);
+              if (typeof value === 'object') return Object.assign({ ...value }, action.value);
               return action.value;
             }
             return value;
           });
         }
         if (typeof obj === 'object') {
-          if (action.key && typeof action.value === 'object') return {...obj, [action.key]: Object.assign({...obj[action.key]}, action.value)};
-          if (action.key) return {...obj, [action.key]: action.value};
+          if (action.key && typeof action.value === 'object') return { ...obj, [action.key]: Object.assign({ ...obj[action.key] }, action.value) };
+          if (action.key) return { ...obj, [action.key]: action.value };
         }
       });
     }
@@ -139,7 +104,7 @@ function switch_object(state, action) {
       return updateAtPath(path, state, (arr) => [...arr, action.value])
     }
   }
-  
+
   switch (action.type) {
     case 'SET':
       return { ...state, [action.key]: action.value };
@@ -157,7 +122,7 @@ function switch_object(state, action) {
 }
 
 function Deduce(reducer) {
-  
+
   return function (state, action) {
     let update = reducer(state, action);
     if (update !== state) return update;
