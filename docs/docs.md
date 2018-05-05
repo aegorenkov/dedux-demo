@@ -63,7 +63,7 @@ The action types that are available to you as a user depend on the top-level obj
 - ADD(value, key)
 - MERGE(value, [key, where])
 - REMOVE([key, value])
-###OBJECT_PATHS_OF[Booleans, Numbers, Strings]
+### OBJECT_PATHS_OF[Booleans, Numbers, Strings]
 *Boolean*
 - SET_{PATH}(value)
 - TOGGLE_{PATH}()
@@ -73,7 +73,7 @@ The action types that are available to you as a user depend on the top-level obj
 - DECREMENT_{PATH}(value)
 *String*
 - SET_{PATH}(value)
-###OBJECT_ARRAY
+### OBJECT_ARRAY
 - ADD_TO_{PATH}(value, [index, where])
 - REMOVE_ALL_{PATH}()
 - REMOVE_FROM_{PATH}([index, where])
@@ -87,7 +87,7 @@ The action types that are available to you as a user depend on the top-level obj
 - INCREMENT_{PATH}([index, where])
 - DECREMENT_ALL_{PATH}()
 - DECREMENT_{PATH}([index, where])
-###OBJECT_OBJECT
+### OBJECT_OBJECT
 // Most likely used for normalization, the path syntax should take care of objects used for organization.
 
 - ADD(value) -- auto-increment option?

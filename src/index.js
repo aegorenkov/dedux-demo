@@ -25,6 +25,15 @@ function switch_boolean(state, action) {
   }
 }
 
+function switch_string(state, action) {
+  switch (action.type) {
+    case 'SET':
+      return action.value;
+    default:
+      return state;
+  }
+}
+
 function switch_array(state, action) {
   switch (action.type) {
     case 'ADD':
@@ -128,6 +137,7 @@ function Deduce(reducer) {
     if (update !== state) return update;
     if (typeof state === 'number') return switch_number(state, action);
     if (typeof state === 'boolean') return switch_boolean(state, action);
+    if (typeof state === 'string') return switch_string(state, action);
     if (Array.isArray(state)) return switch_array(state, action);
     if (typeof state === 'object') return switch_object(state, action);
   }
