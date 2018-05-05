@@ -38,6 +38,10 @@ function switch_array(state, action) {
   switch (action.type) {
     case 'ADD':
       return [...state, action.value];
+    case 'CONCAT':
+      return [...state, ...action.value];
+    case 'REMOVE_ALL':
+      return [];
     case 'REMOVE':
       if (action.index === undefined) action.index = state.length - 1;
       return [
@@ -45,11 +49,20 @@ function switch_array(state, action) {
         ...state.slice(action.index + 1)
       ];
     case 'SET':
-      return [
-        ...state.slice(0, action.index),
-        action.value,
-        ...state.slice(action.index + 1)
-      ];
+      if (action.index !== undefined) {
+        console.log(action.index)
+        return [
+          ...state.slice(0, action.index),
+          action.value,
+          ...state.slice(action.index + 1)
+        ];
+      }
+      if (action.where !== undefined) {
+        return state.map(el => {
+          if (action.where(el)) return action.value;
+          return el;
+        });
+      }
     case 'SET_ALL':
       return state.map((val) => action.value);
     case 'INCREMENT':
