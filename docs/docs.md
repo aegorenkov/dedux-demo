@@ -75,19 +75,18 @@ The action types that are available to you as a user depend on the top-level obj
 *String*
 - SET_{PATH}(value)
 ### OBJECT_ARRAY
-- ADD_TO_{PATH}(value, [index, where])
+- ADD_TO_{PATH}(value)
+- INSERT_IN_{PATH}(value, index)
 - REMOVE_ALL_{PATH}()
 - REMOVE_FROM_{PATH}([index, where])
-- UPDATE_ALL_{PATH}(value)
-- UPDATE_{PATH}(value, [index, where])
 - SET_ALL_{PATH}(value)
-- SET_{PATH}(value, [index, where])
+- SET_IN_{PATH}(value, [index, where])
 - TOGGLE_ALL_{PATH}()
 - TOGGLE_{PATH}([index, where])
 - INCREMENT_ALL_{PATH}()
-- INCREMENT_{PATH}([index, where])
+- INCREMENT_IN_{PATH}([index, where])
 - DECREMENT_ALL_{PATH}()
-- DECREMENT_{PATH}([index, where])
+- DECREMENT_IN_{PATH}([index, where])
 ### OBJECT_OBJECT
 // Most likely used for normalization, the path syntax should take care of objects used for organization.
 

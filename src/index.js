@@ -143,13 +143,58 @@ function switch_object(state, action) {
       }
       return updateAtPath(path, state, () => action.value); 
     }
+    if (verb === 'INCREMENT_ALL') return updateAtPath(getPath(path, state), state, (arr) => arr.map(num => num + action.value));
+    if (verb === 'INCREMENT_IN') {
+      if (action.index !== undefined) {
+        return updateAtPath(getPath(path, state), state, (arr) => {
+          return [...arr.slice(0, action.index), arr[action.index] + action.value, ...arr.slice(action.index + 1)];
+        });
+      }
+      if (action.where !== undefined) {
+        return updateAtPath(getPath(path, state), state, (arr) => {
+          return arr.map((el) => {
+            if (action.where(el)) return el + action.value;
+            return el;
+          })
+        });
+      }
+    }
+    if (verb === 'DECREMENT_ALL') return updateAtPath(getPath(path, state), state, (arr) => arr.map(num => num - action.value));
+    if (verb === 'DECREMENT_IN') {
+      if (action.index !== undefined) {
+        return updateAtPath(getPath(path, state), state, (arr) => {
+          return [...arr.slice(0, action.index), arr[action.index] - action.value, ...arr.slice(action.index + 1)];
+        });
+      }
+      if (action.where !== undefined) {
+        return updateAtPath(getPath(path, state), state, (arr) => {
+          return arr.map((el) => {
+            if (action.where(el)) return el - action.value;
+            return el;
+          })
+        });
+      }
+    }
     if (verb === 'INCREMENT') return updateAtPath(getPath(path, state), state, (number) => number + action.value);
     if (verb === 'TOGGLE') {
+      if (action.index !== undefined) {
+        return updateAtPath(getPath(path, state), state, (obj) => {
+          return [...obj.slice(0, action.index), !obj[action.index], ...obj.slice(action.index + 1)]
+        });
+      }
       if (action.key !== undefined) {
-        return updateAtPath(getPath(path, state), state, (obj) => {return { ...obj, [action.key]: !obj[action.key] }})
+        return updateAtPath(getPath(path, state), state, (obj) => {
+          return { ...obj, [action.key]: !obj[action.key] }
+        })
       }
       if (action.where !== undefined) {
         return updateAtPath(getPath(path, state), state, (obj) => {
+          if (Array.isArray(obj)) {
+            return obj.map((el) => {
+              if (action.where(el)) return !el;
+              return el;
+            });
+          }
           const newObj = {};
           Object.entries(obj).forEach(([key, val]) => {
             if (action.where(key, val)) {
@@ -182,7 +227,42 @@ function switch_object(state, action) {
       });
     }
     if (verb === 'ADD_TO') {
-      return updateAtPath(getPath(path, state), state, (arr) => [...arr, action.value])
+      return updateAtPath(getPath(path, state), state, (arr) => [...arr, action.value]);
+    }
+    if (verb === 'INSERT_IN') {
+      return updateAtPath(getPath(path, state), state, (arr) => [...arr.slice(0, action.index), action.value, ...arr.slice(action.index)]);
+    }
+    if (verb === 'REMOVE_ALL') {
+      return updateAtPath(getPath(path, state), state, (arr) => []);
+    }
+    if (verb === 'REMOVE_FROM') {
+      if (action.index !== undefined) {
+        return updateAtPath(getPath(path, state), state, (arr) => [...arr.slice(0, action.index), ...arr.slice(action.index + 1)]);
+      }
+      if (action.where !== undefined) {
+        return updateAtPath(getPath(path, state), state, (arr) => arr.filter(el => !action.where(el)));
+      }
+    }
+    if (verb === 'SET_ALL') {
+      return updateAtPath(getPath(path, state), state, (arr) => arr.map(el => action.value));
+    }
+    if (verb === 'SET_IN') {
+      if (action.index !== undefined) {
+        return updateAtPath(getPath(path, state), state, (arr) => [...arr.slice(0, action.index), action.value, ...arr.slice(action.index + 1)]);
+      }
+      if (action.where !== undefined) {
+        return updateAtPath(getPath(path, state), state, (arr) => {
+          return arr.map((el) => {
+            if (action.where(el)) return action.value;
+            return el;
+          });
+        });
+      }
+    }
+    if (verb === 'TOGGLE_ALL') {
+      return updateAtPath(getPath(path, state), state, (arr) => arr.map(bool => !bool));
+    }
+    if (verb === 'TOGGLE') {
     }
   }
 

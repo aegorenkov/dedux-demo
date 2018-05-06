@@ -1,15 +1,22 @@
 function actionTypeParser(actionType) {
   const validActions = [
     'SET_ALL',
+    'SET_IN',
     'SET',
     'INCREMENT_ALL',
+    'INCREMENT_IN',
     'INCREMENT',
     'DECREMENT_ALL',
+    'DECREMENT_IN',
     'DECREMENT',
+    'TOGGLE_ALL',
     'TOGGLE',
     'ADD_TO',
     'ADD',
+    'INSERT_IN',
+    'INSERT',
     'REMOVE_ALL',
+    'REMOVE_FROM',
     'REMOVE',
     'UPDATE',
   ];
