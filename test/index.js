@@ -8,6 +8,7 @@ require('./string');
 require('./Array/number');
 require('./Array/bool');
 require('./Array/string');
+require('./Array/object');
 require('./Object/number');
 require('./Object/bool');
 require('./Object/string');

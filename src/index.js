@@ -43,14 +43,18 @@ function switch_array(state, action) {
     case 'REMOVE_ALL':
       return [];
     case 'REMOVE':
+      if (action.where !== undefined) {
+        return state.filter((el) => !action.where(el));
+      }
       if (action.index === undefined) action.index = state.length - 1;
-      return [
-        ...state.slice(0, action.index),
-        ...state.slice(action.index + 1)
-      ];
+      if (action.index !== undefined) {
+        return [
+          ...state.slice(0, action.index),
+          ...state.slice(action.index + 1)
+        ];
+      }
     case 'SET':
       if (action.index !== undefined) {
-        console.log(action.index)
         return [
           ...state.slice(0, action.index),
           action.value,
@@ -103,11 +107,6 @@ function switch_array(state, action) {
       return state.map(value => value + action.value);
     case 'DECREMENT_ALL':
       return state.map(value => value - action.value);
-    case 'UPDATE':
-      return state.map(value => {
-        if (action.where(value)) return action.value;
-        return value;
-      })
     default:
       return state;
   }
@@ -118,8 +117,45 @@ function switch_object(state, action) {
 
   if (path) {
     if (!updateAtPath(path, state, (el) => el)) return { ...state };
+    if (verb === 'SET') {
+      if (action.key !== undefined) {
+        return updateAtPath(path, state, (obj) => {return { ...obj, [action.key]: action.value }})
+      }
+      if (action.where !== undefined) {
+        return updateAtPath(path, state, (obj) => {
+          const newObj = {};
+          Object.entries(obj).forEach(([key, val]) => {
+            if (action.where(key, val)) {
+              newObj[key] = action.value;
+            } else {
+              newObj[key] =  val;
+            }
+          });
+          return newObj;
+        });
+      }
+      return updateAtPath(path, state, () => action.value); 
+    }
     if (verb === 'INCREMENT') return updateAtPath(path, state, (number) => number + action.value);
-    if (verb === 'TOGGLE') return updateAtPath(path, state, (bool) => !bool);
+    if (verb === 'TOGGLE') {
+      if (action.key !== undefined) {
+        return updateAtPath(path, state, (obj) => {return { ...obj, [action.key]: !obj[action.key] }})
+      }
+      if (action.where !== undefined) {
+        return updateAtPath(path, state, (obj) => {
+          const newObj = {};
+          Object.entries(obj).forEach(([key, val]) => {
+            if (action.where(key, val)) {
+              newObj[key] = !val;
+            } else {
+              newObj[key] =  val;
+            }
+          });
+          return newObj;
+        });
+      }
+      return updateAtPath(path, state, (bool) => !bool);
+    }
     if (verb === 'UPDATE') {
       return updateAtPath(path, state, (obj) => {
         if (Array.isArray(obj)) {
@@ -144,12 +180,42 @@ function switch_object(state, action) {
   }
 
   switch (action.type) {
+    case 'SET_ALL':
+      const newObj = {};
+      Object.keys(state).forEach((key) => {
+        newObj[key] = action.value
+      });
+      return newObj;
     case 'SET':
-      return { ...state, [action.key]: action.value };
+      if (action.key !== undefined) {
+        return { ...state, [action.key]: action.value };
+      }
+      if (action.where !== undefined) {
+        const newObj = {};
+        Object.entries(state).forEach(([key, val]) => {
+          if (action.where(key, val)) {
+            newObj[key] = action.value;
+          } else {
+            newObj[key] =  val;
+          }
+        });
+        return newObj;
+      }
+      case 'REMOVE_ALL':
+      return {};
     case 'REMOVE':
+    if (action.key !== undefined) {
       object = { ...state };
       delete object[action.key];
       return object;
+    }
+    if (action.where !== undefined) {
+      const newObj = {};
+      Object.entries(state).forEach(([key, val]) => {
+        if (!action.where(key, val)) newObj[key] =  val;
+      });
+      return newObj;
+    }
     case 'INCREMENT':
       return { ...state, [action.key]: state[action.key] + action.value };
     case 'DECREMENT':

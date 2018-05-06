@@ -16,6 +16,12 @@ describe('Array_Number', () => {
       { type: 'ADD', value: 4 }
     )).toEqual([1, 2, 3, 4]);
   });
+  it('CONCAT', () => {
+    expect(reducer(
+      deepFreeze([1, 2, 3]), 
+      { type: 'CONCAT', value: [4, 5] }
+    )).toEqual([1, 2, 3, 4, 5]);
+  });
   it('SET_ALL', () => {
     expect(reducer(
       deepFreeze([1, 2, 3]), 
@@ -27,6 +33,10 @@ describe('Array_Number', () => {
       deepFreeze([1, 2, 3]), 
       { type: 'SET', index: 0, value: 3 }
     )).toEqual([3, 2, 3]);
+    expect(reducer(
+      deepFreeze([1, 2, 3]), 
+      { type: 'SET', where: (val) => val === 2, value: 3 }
+    )).toEqual([1, 3, 3]);
   });
   it('INSERT', () => {
     expect(reducer(
@@ -34,17 +44,25 @@ describe('Array_Number', () => {
       { type: 'INSERT', value: 4, index: 1 }
     )).toEqual([1, 4, 2, 3]);
   });
+  it('REMOVE_ALL', () => {
+    expect(reducer(
+      deepFreeze([1, 2, 3]), 
+      { type: 'REMOVE_ALL' }
+    )).toEqual([]);
+  });
   it('REMOVE', () => {
     expect(reducer(
       deepFreeze([1, 2, 3]), 
       { type: 'REMOVE' }
-    )).toEqual([1, 2]);    
-  });
-  it('UPDATE', () => {
+    )).toEqual([1, 2]);
     expect(reducer(
       deepFreeze([1, 2, 3]), 
-      { type: 'UPDATE', value: 4, where: (val) => val === 2 }
-    )).toEqual([1, 4, 3]);
+      { type: 'REMOVE', index: 0 }
+    )).toEqual([2, 3]);
+    expect(reducer(
+      deepFreeze([1, 2, 3]), 
+      { type: 'REMOVE', where: (val) => val === 2 }
+    )).toEqual([1, 3]);  
   });
   it('INCREMENT_ALL', () => {
     expect(reducer(

@@ -60,13 +60,14 @@ The action types that are available to you as a user depend on the top-level obj
 - MERGE_ALL(obj)
 - MERGE(obj, [key, where])
 ### OBJECT
-- ADD(value, key)
-- MERGE(value, [key, where])
-- REMOVE([key, value])
+- SET_ALL(value)
+- SET(value, [key, where])
+- REMOVE_ALL()
+- REMOVE([key, where])
 ### OBJECT_PATHS_OF[Booleans, Numbers, Strings]
 *Boolean*
-- SET_{PATH}(value)
-- TOGGLE_{PATH}()
+- SET_{PATH}(value, [key, where])
+- TOGGLE_{PATH}([key, where])
 *Number*
 - SET_{PATH}(value)
 - INCREMENT_{PATH}(value)
