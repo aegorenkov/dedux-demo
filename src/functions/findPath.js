@@ -1,6 +1,6 @@
 function dfs(target, prevKey, obj, callback, path='') {
   if (prevKey !== '') path += (path ? '_': '') + prevKey.toUpperCase();
-  if (prevKey.toUpperCase() === target) {
+  if ((path === target) || path.endsWith('_' + target)) {
     callback(path)
   } else {
     if (typeof obj !== 'object') return;
@@ -11,6 +11,7 @@ function dfs(target, prevKey, obj, callback, path='') {
 }
 
 function findPath(path, obj) {
+  if (path === undefined) return [];
   let paths = [];
   dfs(path, '', obj, (p) => paths.push(p))
   return paths;

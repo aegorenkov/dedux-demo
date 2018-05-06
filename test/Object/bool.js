@@ -72,10 +72,6 @@ describe('Object_Boolean', () => {
       deepFreeze({ a: true, b: false }),
       { type: 'TOGGLE_B' }
     )).toEqual({ a: true, b: true });
-    expect(reducer(
-      deepFreeze({ a: true, b: false }),
-      { type: 'TOGGLE_C' }
-    )).toEqual({ a: true, b: false });
   });
   it('TOGGLE_PATH_LOOKUP', () => {
     expect(reducer(

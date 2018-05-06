@@ -9,6 +9,7 @@ function actionTypeParser(actionType) {
     'TOGGLE',
     'ADD_TO',
     'ADD',
+    'REMOVE_ALL',
     'REMOVE',
     'UPDATE',
   ];

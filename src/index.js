@@ -1,5 +1,12 @@
 const actionTypeParser = require('./functions/actionTypeParser');
 const updateAtPath = require('./functions/updateAtPath');
+const findPath = require('./functions/findPath');
+const getPath = (path, state) => {
+  const paths = findPath(path, state);
+  if (paths.length === 0) throw new Error('Path not found.');
+  if (paths.length > 1) throw new Error('Path not unique, try a longer path specification.');
+  return paths[0].split('_');
+}
 
 function switch_number(state, action) {
   switch (action.type) {
@@ -116,13 +123,13 @@ function switch_object(state, action) {
   let { verb, path } = actionTypeParser(action.type);
 
   if (path) {
-    if (!updateAtPath(path, state, (el) => el)) return { ...state };
+    //if (!updateAtPath(getPath(path, state), state, (el) => el)) return { ...state };
     if (verb === 'SET') {
       if (action.key !== undefined) {
-        return updateAtPath(path.split('_'), state, (obj) => {return { ...obj, [action.key]: action.value }});
+        return updateAtPath(getPath(path, state), state, (obj) => {return { ...obj, [action.key]: action.value }});
       }
       if (action.where !== undefined) {
-        return updateAtPath(path.split('_'), state, (obj) => {
+        return updateAtPath(getPath(path, state), state, (obj) => {
           const newObj = {};
           Object.entries(obj).forEach(([key, val]) => {
             if (action.where(key, val)) {
@@ -136,13 +143,13 @@ function switch_object(state, action) {
       }
       return updateAtPath(path, state, () => action.value); 
     }
-    if (verb === 'INCREMENT') return updateAtPath(path.split('_'), state, (number) => number + action.value);
+    if (verb === 'INCREMENT') return updateAtPath(getPath(path, state), state, (number) => number + action.value);
     if (verb === 'TOGGLE') {
       if (action.key !== undefined) {
-        return updateAtPath(path.split('_'), state, (obj) => {return { ...obj, [action.key]: !obj[action.key] }})
+        return updateAtPath(getPath(path, state), state, (obj) => {return { ...obj, [action.key]: !obj[action.key] }})
       }
       if (action.where !== undefined) {
-        return updateAtPath(path.split('_'), state, (obj) => {
+        return updateAtPath(getPath(path, state), state, (obj) => {
           const newObj = {};
           Object.entries(obj).forEach(([key, val]) => {
             if (action.where(key, val)) {
@@ -154,10 +161,10 @@ function switch_object(state, action) {
           return newObj;
         });
       }
-      return updateAtPath(path, state, (bool) => !bool);
+      return updateAtPath(getPath(path, state), state, (bool) => !bool);
     }
     if (verb === 'UPDATE') {
-      return updateAtPath(path.split('_'), state, (obj) => {
+      return updateAtPath(getPath(path, state), state, (obj) => {
         if (Array.isArray(obj)) {
           return obj.map(value => {
             if (action.where(value)) {
@@ -175,7 +182,7 @@ function switch_object(state, action) {
       });
     }
     if (verb === 'ADD_TO') {
-      return updateAtPath(path, state, (arr) => [...arr, action.value])
+      return updateAtPath(getPath(path, state), state, (arr) => [...arr, action.value])
     }
   }
 

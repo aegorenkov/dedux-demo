@@ -44,6 +44,10 @@ describe('findPath', () => {
     const state = { root: '1' };
     expect(findPath('ROOT', state)).toEqual(['ROOT']);
   });
+  it('Should find shallow paths in simple objects', () => {
+    const state = { a: '1', b: '2' };
+    expect(findPath('B', state)).toEqual(['B']);
+  });
   it('Should find shallow paths in nested objects', () => {
     const state = { root: { a: 1, b: 2 } };
     expect(findPath('ROOT', state)).toEqual(['ROOT']);
@@ -67,5 +71,10 @@ describe('findPath', () => {
     const state = { root: { a: 1, secondA: { a: 1, b: 2 }, secondB: { a: 1, b: 2 } } };
     expect(findPath('SECONDA', state)).toEqual(['ROOT_SECONDA']);
     expect(findPath('C', state)).toEqual([]);
+  });
+  it('Long hand paths should work', () => {
+    const state = { root: { a: 1, secondA: { a: 1, b: 2 }, secondB: { a: 1, b: 2 } } };
+    expect(findPath('SECONDA', state)).toEqual(['ROOT_SECONDA']);
+    expect(findPath('ROOT_SECONDA', state)).toEqual(['ROOT_SECONDA']);
   });
 })
