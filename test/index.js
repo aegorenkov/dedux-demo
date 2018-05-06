@@ -2,6 +2,7 @@ Deduce = require('../src/index.js');
 expect = require('expect');
 deepFreeze = require('deep-freeze');
 
+require('./functions')
 require('./number');
 require('./boolean');
 require('./string');

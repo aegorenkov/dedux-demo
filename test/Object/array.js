@@ -24,7 +24,7 @@ describe('Object_Array', () => {
     )).toEqual({todos: [{ id: 1, text: 'Make todo list', completed: true }]});
     expect(reducer(
       deepFreeze({root: {todos: [{ id: 1, text: 'Make todo list', completed: false }]}}),
-      {type: 'UPDATE_TODOS', value: { completed: true }, where: (elem) => elem.id === 1} 
+      {type: 'UPDATE_ROOT_TODOS', value: { completed: true }, where: (elem) => elem.id === 1} 
     )).toEqual({root: {todos: [{ id: 1, text: 'Make todo list', completed: true }]}});
   });
 });
