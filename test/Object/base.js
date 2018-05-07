@@ -9,6 +9,18 @@ describe('Object', () => {
     };
     reducer = Deduce(reducer);
   });
+  it('SET_PATH', () => {
+    expect(reducer(
+      deepFreeze({
+        items:[],
+        author:'',
+        text: ''
+      }), { type: 'SET_AUTHOR', value: 'Daniel'})).toEqual({
+        items:[],
+        author:'Daniel',
+        text: ''
+      })
+  });
   it('SET_ALL', () => {
     expect(reducer(
       deepFreeze({ a: true, b: false }),

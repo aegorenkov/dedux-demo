@@ -132,7 +132,7 @@ function switch_array(state, action) {
       return state.map(value => value - action.value);
     case 'MERGE_ALL':
       return state.map((obj) => {
-        return Object.assign({...obj}, action.value);
+        return Object.assign({ ...obj }, action.value);
       });
     case 'MERGE_IN':
       if (action.index !== undefined) {
@@ -175,7 +175,7 @@ function switch_object(state, action) {
           return newObj;
         });
       }
-      return updateAtPath(path, state, () => action.value); 
+      return updateAtPath(getPath(path, state), state, () => action.value)
     }
     if (verb === 'INCREMENT_ALL') return updateAtPath(getPath(path, state), state, (arr) => arr.map(num => num + action.value));
     if (verb === 'INCREMENT_IN') {

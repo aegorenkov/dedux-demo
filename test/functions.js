@@ -77,4 +77,11 @@ describe('findPath', () => {
     expect(findPath('SECONDA', state)).toEqual(['ROOT_SECONDA']);
     expect(findPath('ROOT_SECONDA', state)).toEqual(['ROOT_SECONDA']);
   });
+  it('Should not traverse arrays', () => {
+    const state = {
+      "example": [ {"test": true} ],
+      "test": true
+    };
+    expect(findPath("TEST", state)).toEqual(['TEST'])
+  })
 })
