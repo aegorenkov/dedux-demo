@@ -43,13 +43,13 @@ function switch_string(state, action) {
 
 function switch_array(state, action) {
   switch (action.type) {
-    case 'ADD':
+    case 'ADD_IN':
       return [...state, action.value];
-    case 'CONCAT':
+    case 'CONCAT_IN':
       return [...state, ...action.value];
     case 'REMOVE_ALL':
       return [];
-    case 'REMOVE':
+    case 'REMOVE_IN':
       if (action.where !== undefined) {
         return state.filter((el) => !action.where(el));
       }
@@ -60,7 +60,7 @@ function switch_array(state, action) {
           ...state.slice(action.index + 1)
         ];
       }
-    case 'SET':
+    case 'SET_IN':
       if (action.index !== undefined) {
         return [
           ...state.slice(0, action.index),
@@ -76,7 +76,7 @@ function switch_array(state, action) {
       }
     case 'SET_ALL':
       return state.map((val) => action.value);
-    case 'TOGGLE':
+    case 'TOGGLE_IN':
     if (action.index !== undefined) {
       return [
         ...state.slice(0, action.index),
@@ -92,19 +92,35 @@ function switch_array(state, action) {
     }
     case 'TOGGLE_ALL':
       return state.map((el) => !el);
-    case 'INCREMENT':
-      return [
-        ...state.slice(0, action.index),
-        state[action.index] + action.value,
-        ...state.slice(action.index + 1)
-      ];
-    case 'DECREMENT':
+    case 'INCREMENT_IN':
+      if (action.index !== undefined) {
+        return [
+          ...state.slice(0, action.index),
+          state[action.index] + action.value,
+          ...state.slice(action.index + 1)
+        ];
+      }
+      if (action.where !== undefined) {
+        return state.map((el) => {
+          if (action.where(el)) return el + action.value;
+          return el;
+        });
+      }
+    case 'DECREMENT_IN':
+    if (action.index !== undefined) {
       return [
         ...state.slice(0, action.index),
         state[action.index] - action.value,
         ...state.slice(action.index + 1)
       ];
-    case 'INSERT':
+    }
+    if (action.where !== undefined) {
+      return state.map((el) => {
+        if (action.where(el)) return el - action.value;
+        return el;
+      });
+    }
+    case 'INSERT_IN':
       return [
         ...state.slice(0, action.index),
         action.value,
@@ -114,6 +130,24 @@ function switch_array(state, action) {
       return state.map(value => value + action.value);
     case 'DECREMENT_ALL':
       return state.map(value => value - action.value);
+    case 'MERGE_ALL':
+      return state.map((obj) => {
+        return Object.assign({...obj}, action.value);
+      });
+    case 'MERGE_IN':
+      if (action.index !== undefined) {
+        return [...state.slice(0, action.index),
+          Object.assign({...state[action.index]}, action.value),
+          ...state.slice(action.index + 1)
+        ];
+      }
+      if (action.where !== undefined) {
+        return state.map((obj) => {
+          if (action.where(obj)) return Object.assign({...obj}, action.value);
+          return obj;
+        });
+      }
+      
     default:
       return state;
   }

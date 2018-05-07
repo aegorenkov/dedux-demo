@@ -29,6 +29,7 @@ TODOS:
 ## Common Actions
 The action types that are available to you as a user depend on the top-level object in your Redux state. The most common is an object, but it's also possible to have arrays, strings, numbers, and booleans as your state.
 
+## Basic Types
 ### Number
 - SET(value)
 - INCREMENT(value)
@@ -42,33 +43,35 @@ The action types that are available to you as a user depend on the top-level obj
 - ADD(value)
 - CONCAT(array)
 - SET_ALL(value)
-- SET(value, [index, where])
-- INSERT(value, index)
+- SET_IN(value, [index, where])
+- INSERT_IN(value, index)
 - REMOVE_ALL()
-- REMOVE(value, [index, where])
+- REMOVE_IN(value, [index, where])
+### OBJECT
+- SET_ALL(value)
+- SET_IN(value, [key, where])
+- MERGE(value)
+- REMOVE_ALL()
+- REMOVE_IN([key, where])
+
+## Nested Types
 ### ARRAY_OF[Booleans, Numbers, String]
 *Boolean*
 - TOGGLE_ALL()
-- TOGGLE([index, where])
+- TOGGLE_IN([index, where])
 *Number*
 - INCREMENT_ALL(value)
-- INCREMENT(value, [index, where])
+- INCREMENT_IN(value, [index, where])
 - DECREMENT_ALL(value)
-- DECREMENT(value, [index, where])
+- DECREMENT_IN(value, [index, where])
 *String*
 ### ARRAY_OF[Objects]
 - MERGE_ALL(obj)
-- MERGE(obj, [key, where])
-### OBJECT
-- SET_ALL(value)
-- SET(value, [key, where])
-- MERGE(value)
-- REMOVE_ALL()
-- REMOVE([key, where])
+- MERGE_IN(obj, [index, where])
 ### OBJECT_PATHS_OF[Booleans, Numbers, Strings]
 *Boolean*
-- SET_{PATH}(value, [key, where])
-- TOGGLE_{PATH}([key, where])
+- SET_{PATH}(value)
+- TOGGLE_{PATH}()
 *Number*
 - SET_{PATH}(value)
 - INCREMENT_{PATH}(value)
@@ -76,14 +79,14 @@ The action types that are available to you as a user depend on the top-level obj
 *String*
 - SET_{PATH}(value)
 ### OBJECT_ARRAY
-- ADD_TO_{PATH}(value)
+- ADD_IN_{PATH}(value)
 - INSERT_IN_{PATH}(value, index)
 - REMOVE_ALL_{PATH}()
-- REMOVE_FROM_{PATH}([index, where])
+- REMOVE_IN_{PATH}([index, where])
 - SET_ALL_{PATH}(value)
 - SET_IN_{PATH}(value, [index, where])
 - TOGGLE_ALL_{PATH}()
-- TOGGLE_{PATH}([index, where])
+- TOGGLE_IN_{PATH}([index, where])
 - INCREMENT_ALL_{PATH}()
 - INCREMENT_IN_{PATH}([index, where])
 - DECREMENT_ALL_{PATH}()
@@ -93,9 +96,7 @@ The action types that are available to you as a user depend on the top-level obj
 
 - ADD(value) -- auto-increment option?
 - MERGE_ALL(value)
-- MERGE(value, [key, where])
-- REMOVE_ALL()
-- REMOVE(value, [key, where])
+- MERGE_IN(value, [key, where])
 
 ### Number
 

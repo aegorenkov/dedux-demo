@@ -6,6 +6,8 @@ require('./functions')
 require('./number');
 require('./boolean');
 require('./string');
+require('./Array/base');
+require('./Object/base');
 require('./Array/number');
 require('./Array/bool');
 require('./Array/string');
