@@ -11,40 +11,40 @@ describe('Array', () => {
     reducer = Deduce(reducer);
   });
 
-  it('ADD_IN', () => {
+  it('ADD', () => {
     expect(reducer(
       deepFreeze([true, false]),
-      { type: 'ADD_IN', value: true }
+      { type: 'ADD', value: true }
     )).toEqual([true, false, true]);
     expect(reducer(
       deepFreeze([1, 2, 3]), 
-      { type: 'ADD_IN', value: 4 }
+      { type: 'ADD', value: 4 }
     )).toEqual([1, 2, 3, 4]);
     expect(reducer(
       deepFreeze([{ a: 1 }]),
-      { type: 'ADD_IN', value: { b: 2 } }
+      { type: 'ADD', value: { b: 2 } }
     )).toEqual([{ a: 1 }, { b: 2 }]);
     expect(reducer(
       deepFreeze(['1', '2']), 
-      { type: 'ADD_IN', value: '3' }
+      { type: 'ADD', value: '3' }
     )).toEqual(['1', '2', '3']);
   });
-  it('CONCAT_IN', () => {
+  it('CONCAT', () => {
     expect(reducer(
       deepFreeze([true, false]),
-      { type: 'CONCAT_IN', value: [true, false] }
+      { type: 'CONCAT', value: [true, false] }
     )).toEqual([true, false, true, false]);
     expect(reducer(
       deepFreeze([1, 2, 3]), 
-      { type: 'CONCAT_IN', value: [4, 5] }
+      { type: 'CONCAT', value: [4, 5] }
     )).toEqual([1, 2, 3, 4, 5]);
     expect(reducer(
       deepFreeze([{ a: 1 }]),
-      { type: 'CONCAT_IN', value: [{ b: 2 }, { c: 3 }] }
+      { type: 'CONCAT', value: [{ b: 2 }, { c: 3 }] }
     )).toEqual([{ a: 1 }, { b: 2 }, { c: 3 }]);
     expect(reducer(
       deepFreeze(['1', '2', '3']), 
-      { type: 'CONCAT_IN', value: ['4', '5'] }
+      { type: 'CONCAT', value: ['4', '5'] }
     )).toEqual(['1', '2', '3', '4', '5']);
   });
   it('SET_ALL', () => {
@@ -99,22 +99,22 @@ describe('Array', () => {
       { type: 'SET_IN', where: (val) => val === '2', value: '3' }
     )).toEqual(['1', '3', '3']);
   });
-  it('INSERT_IN', () => {
+  it('INSERT', () => {
     expect(reducer(
       deepFreeze([false, true]),
-      { type: 'INSERT_IN', value: true, index: 1 }
+      { type: 'INSERT', value: true, index: 1 }
     )).toEqual([false, true, true]);
     expect(reducer(
       deepFreeze([1, 2, 3]), 
-      { type: 'INSERT_IN', value: 4, index: 1 }
+      { type: 'INSERT', value: 4, index: 1 }
     )).toEqual([1, 4, 2, 3]);
     expect(reducer(
       deepFreeze([{ a: 1 }, { c: 3 }]),
-      { type: 'INSERT_IN', value: { b: 2 }, index: 1 }
+      { type: 'INSERT', value: { b: 2 }, index: 1 }
     )).toEqual([{ a: 1 }, { b: 2 }, { c: 3 }]);
     expect(reducer(
       deepFreeze(['1', '2', '3']), 
-      { type: 'INSERT_IN', value: '4', index: 1 }
+      { type: 'INSERT', value: '4', index: 1 }
     )).toEqual(['1', '4', '2', '3']);
   });
   it('REMOVE_ALL', () => {

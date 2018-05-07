@@ -17,6 +17,7 @@ require('./Object/bool');
 require('./Object/string');
 require('./Object/array');
 require('./Object/object');
+require('./Object/path');
 
 describe('Custom Reducers', () => {
   let reducer;

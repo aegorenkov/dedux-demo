@@ -10,6 +10,7 @@ function actionTypeParser(actionType) {
     'DECREMENT_IN',
     'DECREMENT',
     'TOGGLE_ALL',
+    'TOGGLE_IN',
     'TOGGLE',
     'ADD_TO',
     'ADD',

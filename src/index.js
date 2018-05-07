@@ -43,9 +43,9 @@ function switch_string(state, action) {
 
 function switch_array(state, action) {
   switch (action.type) {
-    case 'ADD_IN':
+    case 'ADD':
       return [...state, action.value];
-    case 'CONCAT_IN':
+    case 'CONCAT':
       return [...state, ...action.value];
     case 'REMOVE_ALL':
       return [];
@@ -120,7 +120,7 @@ function switch_array(state, action) {
         return el;
       });
     }
-    case 'INSERT_IN':
+    case 'INSERT':
       return [
         ...state.slice(0, action.index),
         action.value,
@@ -211,6 +211,9 @@ function switch_object(state, action) {
     }
     if (verb === 'INCREMENT') return updateAtPath(getPath(path, state), state, (number) => number + action.value);
     if (verb === 'TOGGLE') {
+      return updateAtPath(getPath(path, state), state, (bool) => !bool);
+    }
+    if (verb === 'TOGGLE_IN') {
       if (action.index !== undefined) {
         return updateAtPath(getPath(path, state), state, (obj) => {
           return [...obj.slice(0, action.index), !obj[action.index], ...obj.slice(action.index + 1)]
@@ -240,7 +243,6 @@ function switch_object(state, action) {
           return newObj;
         });
       }
-      return updateAtPath(getPath(path, state), state, (bool) => !bool);
     }
     if (verb === 'MERGE_IN') {
       return updateAtPath(getPath(path, state), state, (obj) => {
@@ -305,8 +307,6 @@ function switch_object(state, action) {
     if (verb === 'TOGGLE_ALL') {
       return updateAtPath(getPath(path, state), state, (arr) => arr.map(bool => !bool));
     }
-    if (verb === 'TOGGLE') {
-    }
   }
 
   switch (action.type) {
@@ -316,7 +316,7 @@ function switch_object(state, action) {
         newObj[key] = action.value
       });
       return newObj;
-    case 'SET':
+    case 'SET_IN':
       if (action.key !== undefined) {
         return { ...state, [action.key]: action.value };
       }
@@ -342,7 +342,7 @@ function switch_object(state, action) {
           return Object.assign({...state}, action.value);
     case 'REMOVE_ALL':
       return {};
-    case 'REMOVE':
+    case 'REMOVE_IN':
     if (action.key !== undefined) {
       object = { ...state };
       delete object[action.key];
@@ -355,9 +355,9 @@ function switch_object(state, action) {
       });
       return newObj;
     }
-    case 'INCREMENT':
+    case 'INCREMENT_IN':
       return { ...state, [action.key]: state[action.key] + action.value };
-    case 'DECREMENT':
+    case 'DECREMENT_IN':
       return { ...state, [action.key]: state[action.key] - action.value };
     default:
       return state;

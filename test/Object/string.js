@@ -9,10 +9,10 @@ describe('Object_String', () => {
     };
     reducer = Deduce(reducer);
   });
-  it('SET', () => {
+  it('SET_IN', () => {
     expect(reducer(
       deepFreeze({ a: 'a', b: 'b' }), 
-      { type: 'SET', value: 'c', key: 'b' }
+      { type: 'SET_IN', value: 'c', key: 'b' }
     )).toEqual({ a: 'a', b: 'c' });
   });
 });

@@ -9,16 +9,16 @@ describe('Object_Number', () => {
     };
     reducer = Deduce(reducer);
   });
-  it('INCREMENT', () => {
+  it('INCREMENT_IN', () => {
     expect(reducer(
       deepFreeze({ a: 1, b: 2 }), 
-      { type: 'INCREMENT', value: 3, key: 'b' }
+      { type: 'INCREMENT_IN', value: 3, key: 'b' }
     )).toEqual({ a: 1, b: 5 });
   });
-  it('DECREMENT', () => {
+  it('DECREMENT_IN', () => {
     expect(reducer(
       deepFreeze({ a: 1, b: 2 }), 
-      { type: 'DECREMENT', value: 3, key: 'b' }
+      { type: 'DECREMENT_IN', value: 3, key: 'b' }
     )).toEqual({ a: 1, b: -1 });
   });
   it('INCREMENT_PATH', () => {

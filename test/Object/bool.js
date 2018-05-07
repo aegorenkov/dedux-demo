@@ -9,50 +9,6 @@ describe('Object_Boolean', () => {
     };
     reducer = Deduce(reducer);
   });
-  it('SET', () => {
-    expect(reducer(
-      deepFreeze({ a: true, b: false }),
-      { type: 'SET', key: 'c', value: false }
-    )).toEqual({ a: true, b: false, c: false });
-  });
-  it('SET_ALL', () => {
-    expect(reducer(
-      deepFreeze({ a: true, b: false }),
-      { type: 'SET_ALL', value: true }
-    )).toEqual({ a: true, b: true });
-  });
-  it('SET', () => {
-    expect(reducer(
-      deepFreeze({ a: true, b: false }),
-      { type: 'SET', key: 'b', value: true }
-    )).toEqual({ a: true, b: true });
-    expect(reducer(
-      deepFreeze({ a: true, b: false }),
-      { type: 'SET', where: (key, val) => { return (key === 'b') && (val === false) }, value: true }
-    )).toEqual({ a: true, b: true });
-  });
-  it('MERGE', () => {
-    expect(reducer(
-      deepFreeze({ a: true, b: false }),
-      { type: 'MERGE', value: { b: true, a: false } }
-    )).toEqual({ a: false, b: true });
-  });
-  it('REMOVE_ALL', () => {
-    expect(reducer(
-      deepFreeze({ a: true, b: false }),
-      { type: 'REMOVE_ALL' }
-    )).toEqual({});
-  });
-  it('REMOVE', () => {
-    expect(reducer(
-      deepFreeze({ a: true, b: false }),
-      { type: 'REMOVE', key: 'a' }
-    )).toEqual({ b: false });
-    expect(reducer(
-      deepFreeze({ a: true, b: false }),
-      { type: 'REMOVE', where: (key, value) => key === 'a' && value === true }
-    )).toEqual({ b: false });
-  });
   it('SET_PATH', () => {
     expect(reducer(
       deepFreeze({ a: true, b: false }),
@@ -77,14 +33,14 @@ describe('Object_Boolean', () => {
       { type: 'TOGGLE_B' }
     )).toEqual({ a: true, b: true });
   });
-  it('TOGGLE_PATH_LOOKUP', () => {
+  it('TOGGLE_IN_PATH', () => {
     expect(reducer(
       deepFreeze({ test: { a: true, b: false } }),
-      { type: 'TOGGLE_TEST', value: false, key: 'a' }
+      { type: 'TOGGLE_IN_TEST', value: false, key: 'a' }
     )).toEqual({ test: { a: false, b: false } });
     expect(reducer(
       deepFreeze({ test: { a: true, b: false } }),
-      { type: 'TOGGLE_TEST', value: false, where: (key, value) => key === 'a' && value === true }
+      { type: 'TOGGLE_IN_TEST', value: false, where: (key, value) => key === 'a' && value === true }
     )).toEqual({ test: { a: false, b: false } });
   });
 });
