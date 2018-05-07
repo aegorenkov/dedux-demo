@@ -208,7 +208,7 @@ function switch_object(state, action) {
       }
       return updateAtPath(getPath(path, state), state, (bool) => !bool);
     }
-    if (verb === 'UPDATE') {
+    if (verb === 'MERGE_IN') {
       return updateAtPath(getPath(path, state), state, (obj) => {
         if (Array.isArray(obj)) {
           return obj.map(value => {
@@ -224,6 +224,15 @@ function switch_object(state, action) {
           if (action.key && typeof action.value === 'object') return { ...obj, [action.key]: Object.assign({ ...obj[action.key] }, action.value) };
           if (action.key) return { ...obj, [action.key]: action.value };
         }
+      });
+    }
+    if (verb === 'MERGE_ALL') {
+      return updateAtPath(getPath(path, state), state, (obj) => {
+        const newObj = {};
+        Object.entries(obj).forEach(([key, subObj]) => {
+          newObj[key] = Object.assign({...subObj}, action.value);  
+        })
+        return newObj;
       });
     }
     if (verb === 'ADD_TO') {
@@ -278,7 +287,7 @@ function switch_object(state, action) {
         return { ...state, [action.key]: action.value };
       }
       if (action.where !== undefined) {
-        const newObj = {};
+        let newObj = {};
         Object.entries(state).forEach(([key, val]) => {
           if (action.where(key, val)) {
             newObj[key] = action.value;
@@ -288,7 +297,16 @@ function switch_object(state, action) {
         });
         return newObj;
       }
-      case 'REMOVE_ALL':
+    case 'MERGE_ALL':
+    { let newObj = {};
+      Object.entries(state).forEach(([key, subObj]) => {
+        newObj[key] = Object.assign({...subObj}, action.value);
+      });
+      return newObj;
+    }
+    case 'MERGE':
+          return Object.assign({...state}, action.value);
+    case 'REMOVE_ALL':
       return {};
     case 'REMOVE':
     if (action.key !== undefined) {

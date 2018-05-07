@@ -31,8 +31,12 @@ describe('Object_Boolean', () => {
       { type: 'SET', where: (key, val) => { return (key === 'b') && (val === false) }, value: true }
     )).toEqual({ a: true, b: true });
   });
-  // - MERGE_ALL(value)
-  // - MERGE(value, [key, where])
+  it('MERGE', () => {
+    expect(reducer(
+      deepFreeze({ a: true, b: false }),
+      { type: 'MERGE', value: { b: true, a: false } }
+    )).toEqual({ a: false, b: true });
+  });
   it('REMOVE_ALL', () => {
     expect(reducer(
       deepFreeze({ a: true, b: false }),

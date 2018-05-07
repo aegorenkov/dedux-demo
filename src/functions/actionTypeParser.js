@@ -18,7 +18,9 @@ function actionTypeParser(actionType) {
     'REMOVE_ALL',
     'REMOVE_FROM',
     'REMOVE',
-    'UPDATE',
+    'MERGE_ALL',
+    'MERGE_IN',
+    'MERGE',
   ];
   let verb;
   let path;

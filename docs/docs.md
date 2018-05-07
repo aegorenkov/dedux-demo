@@ -62,6 +62,7 @@ The action types that are available to you as a user depend on the top-level obj
 ### OBJECT
 - SET_ALL(value)
 - SET(value, [key, where])
+- MERGE(value)
 - REMOVE_ALL()
 - REMOVE([key, where])
 ### OBJECT_PATHS_OF[Booleans, Numbers, Strings]
