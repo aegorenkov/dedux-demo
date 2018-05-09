@@ -7,7 +7,7 @@ describe('Object_Boolean', () => {
           return state;
       }
     };
-    reducer = Deduce(reducer);
+    reducer = deduce(reducer);
   });
   it('SET_PATH', () => {
     expect(reducer(

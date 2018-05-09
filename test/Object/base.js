@@ -7,7 +7,7 @@ describe('Object', () => {
           return state;
       }
     };
-    reducer = Deduce(reducer);
+    reducer = deduce(reducer);
   });
   it('SET_PATH', () => {
     expect(reducer(

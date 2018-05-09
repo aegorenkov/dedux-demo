@@ -7,7 +7,7 @@ describe('String', () => {
           return state;
       }
     };
-    reducer = Deduce(reducer);
+    reducer = deduce(reducer);
   });
   it('SET', () => {
     expect(reducer(

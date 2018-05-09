@@ -7,7 +7,7 @@ describe('Object_Object', () => {
           return state;
       }
     };
-    reducer = Deduce(reducer);
+    reducer = deduce(reducer);
   });
   it('MERGE_ALL', () => {
     expect(reducer(

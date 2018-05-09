@@ -8,7 +8,7 @@ describe('Array', () => {
           return state;
       }
     };
-    reducer = Deduce(reducer);
+    reducer = deduce(reducer);
   });
 
   it('ADD', () => {

@@ -7,7 +7,7 @@ describe('Object_Array', () => {
           return state;
       }
     };
-    reducer = Deduce(reducer);
+    reducer = deduce(reducer);
   });
   it('ADD_TO_PATH', () => {
     expect(reducer(

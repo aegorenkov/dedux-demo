@@ -7,7 +7,7 @@ describe('Object_Number', () => {
           return state;
       }
     };
-    reducer = Deduce(reducer);
+    reducer = deduce(reducer);
   });
   it('INCREMENT_IN', () => {
     expect(reducer(
