@@ -1,11 +1,12 @@
-Deduce = require('../src/index.js');
+deduce = require('../src/index.js')['deduce'];
 expect = require('expect');
 deepFreeze = require('deep-freeze');
 
-require('./functions')
+require('./functions');
 require('./number');
 require('./boolean');
 require('./string');
+require('./action_creator');
 require('./Array/base');
 require('./Object/base');
 require('./Array/number');
@@ -28,7 +29,7 @@ describe('Custom Reducers', () => {
           return state;
       }
     };
-    reducer = Deduce(reducer);
+    reducer = deduce(reducer);
   });
   it('No change for non-existent action type.', () => {
     expect(reducer(

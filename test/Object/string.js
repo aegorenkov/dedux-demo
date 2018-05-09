@@ -7,7 +7,7 @@ describe('Object_String', () => {
           return state;
       }
     };
-    reducer = Deduce(reducer);
+    reducer = deduce(reducer);
   });
   it('SET_IN', () => {
     expect(reducer(

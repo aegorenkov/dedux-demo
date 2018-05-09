@@ -246,21 +246,42 @@ function switch_object(state, action) {
       }
     }
     if (verb === 'MERGE_IN') {
-      console.log('HERERREER')
-      return updateAtPath(test = getPath(path, state), state, (obj) => {
+
+
+
+      return updateAtPath(getPath(path, state), state, (obj) => {
         if (Array.isArray(obj)) {
-          return obj.map(value => {
-            if (action.where(value)) {
-              // Special case to merge object props instead of setting the value.
-              if (typeof value === 'object') return Object.assign({ ...value }, action.value);
-              return action.value;
-            }
-            return value;
-          });
+          if (action.index) {
+            let newState = [ ...obj ];
+            newState[action.index] = Object.assign({ ...newState[action.index] }, action.value);
+            return newState;
+          }
+
+          if (action.where) {
+            return obj.map(value => {
+              if (action.where(value)) {
+                // Special case to merge object props instead of setting the value.
+                if (typeof value === 'object') return Object.assign({ ...value }, action.value);
+                return action.value;
+              }
+              return value;
+            });
+          }
         }
         if (typeof obj === 'object') {
-          if (action.key && typeof action.value === 'object') return { ...obj, [action.key]: Object.assign({ ...obj[action.key] }, action.value) };
-          if (action.key) return { ...obj, [action.key]: action.value };
+          if (action.key !== undefined && typeof action.value === 'object') return { ...obj, [action.key]: Object.assign({ ...obj[action.key] }, action.value) };
+          if (action.key !== undefined) return { ...obj, [action.key]: action.value };
+          if (action.where !== undefined) {
+            const newObj = {};
+            console.log(obj)
+            Object.entries(obj).forEach(([key, subObj]) => {
+              if (action.where(key, subObj)) {
+                newObj[key] = Object.assign({ ...subObj }, action.value);
+              }
+              else newObj[key] = { ...subObj }
+            })
+            return newObj;
+          }
         }
       });
     }
@@ -336,15 +357,16 @@ function switch_object(state, action) {
         Object.entries(state).forEach(([key, subObj]) => {
           newObj[key] = { ...subObj, ...action.value }
         })
-        console.log(newObj)
         return newObj
       }
     case 'MERGE_ALL':
-      Object.entries(state).forEach(([key, subObj]) => {
-        console.log(subObj)
-        newObj[key] = Object.assign({ ...subObj }, action.value);
-      });
-      return state;
+      {
+        let newObj = {};
+        Object.entries(state).forEach(([key, subObj]) => {
+          newObj[key] = Object.assign({ ...subObj }, action.value);
+        });
+        return newObj;
+      }
     case 'MERGE':
       return Object.assign({ ...state }, action.value);
     case 'REMOVE_ALL':
@@ -371,17 +393,172 @@ function switch_object(state, action) {
   }
 }
 
-function Deduce(reducer) {
+// function Deduce(reducer) {
+//   return function (state, action) {
+//     let update = reducer(state, action);
+//     if (update !== state) return update;
+//     if (typeof state === 'number') {
+//       return switch_number(state, action);
+//     }
+//     if (typeof state === 'boolean') {
+//       closedState = switch_boolean(state, action);
+//       return closedState;
+//     }
+//     if (typeof state === 'string') {
+//       closedState = switch_string(state, action);
+//       return closedState;
+//     }
+//     if (Array.isArray(state)) {
+//       closedState = switch_array(state, action);
+//       return closedState;
+//     }
+//     if (typeof state === 'object') {
+//       closedState = switch_object(state, action);;
+//       return closedState;
+//     }
+//   }
+// }
+function checkPath(path, state) {
+  if (path) {
+    let paths = findPath(path, state);
+    if (paths.length === 0) throw new Error(`Path: ${path} could not be found.`);
+    if (paths.length > 1) throw new Error(`Multiple valid paths found. Use a longer path to ensure a unique selection.`)
+  }
+}
+function validatePayload(action, payload, required) {
+  if (!payload) return;
+  if (required.includes('value') && !('value' in payload)) {
+    throw new Error(`${action} should include a value property in the payload.`)
+  }
+  if (required.includes('in')
+    && payload.index === undefined
+    && payload.key === undefined
+    && payload.where === undefined) {
+    throw new Error(`${action} should include either a key, index, or where property in the payload.`)
+  }
+  if (required.includes('index')) {
+    throw new Error(`${action} should include either a key or index property in the payload.`)
+  }
+}
+function handleAction(action, config, required, state) {
+  if (!config) throw new Error('All actions need to have a configuration object.');
+  checkPath(config.path, state);
+  validatePayload(action, config, required);
+  // Final configuration for action
+  let path = config.path;
+  delete config['path'];
+  if (path) return Object.assign({ type: `${action}_${path}` }, config);
+  return Object.assign({ type: action }, config);
+}
 
-  return function (state, action) {
-    let update = reducer(state, action);
-    if (update !== state) return update;
-    if (typeof state === 'number') return switch_number(state, action);
-    if (typeof state === 'boolean') return switch_boolean(state, action);
-    if (typeof state === 'string') return switch_string(state, action);
-    if (Array.isArray(state)) return switch_array(state, action);
-    if (typeof state === 'object') return switch_object(state, action);
+class Actions {
+  constructor(closedState) {
+    this.closedState = closedState;
+  }
+  SET_ALL(config) {
+    return handleAction('SET_ALL', config, ['value'], this.closedState.state);
+  }
+  SET_IN(config) {
+    return handleAction('SET', config, ['value', 'in'], this.closedState.state);
+  }
+  SET(config) {
+    return handleAction('SET', config, ['value'], this.closedState.state);
+  }
+  INCREMENT_ALL(config) {
+    return handleAction('SET', config, ['value'], this.closedState.state);
+  }
+  INCREMENT_IN(config) {
+    return handleAction('SET', config, ['value', 'in'], this.closedState.state);
+  }
+  INCREMENT(config) {
+    return handleAction('SET', config, ['value'], this.closedState.state);
+  }
+  DECREMENT_ALL(config) {
+    return handleAction('SET', config, ['value'], this.closedState.state);
+  }
+  DECREMENT_IN(config) {
+    return handleAction('DECREMENT_IN', config, ['value', 'in'], this.closedState.state);
+  }
+  DECREMENT(config) {
+    return handleAction('DECREMENT', config, ['value'], this.closedState.state);
+  }
+  TOGGLE_ALL(config) {
+    return handleAction('TOGGLE_ALL', config, ['value'], this.closedState.state);
+  }
+  TOGGLE_IN(config) {
+    return handleAction('TOGGLE_IN', config, ['value', 'in'], this.closedState.state);
+  }
+  TOGGLE(config) {
+    return handleAction('TOGGLE', config, ['value'], this.closedState.state);
+  }
+  ADD_TO(config) {
+    return handleAction('ADD_TO', config, ['value'], this.closedState.state);
+  }
+  ADD(config) {
+    return handleAction('ADD', config, ['value'], this.closedState.state);
+  }
+  INSERT_IN(config) {
+    return handleAction('INSERT_IN', config, ['value', 'in'], this.closedState.state);
+  }
+  INSERT(config) {
+    return handleAction('INSERT', config, ['value'], this.closedState.state);
+  }
+  REMOVE_ALL(config) {
+    return handleAction('REMOVE_ALL', config, ['value'], this.closedState.state);
+  }
+  REMOVE_FROM(config) {
+    return handleAction('REMOVE_FROM', config, ['value'], this.closedState.state);
+  }
+  REMOVE(config) {
+    return handleAction('REMOVE', config, ['value'], this.closedState.state);
+  }
+  MERGE_ALL(config) {
+    return handleAction('MERGE_ALL', config, ['value'], this.closedState.state);
+  }
+  MERGE_IN(config) {
+    return handleAction('MERGE_IN', config, ['value', 'in'], this.closedState.state);
+  }
+  MERGE(config) {
+    return handleAction('MERGE', config, ['value'], this.closedState.state);
   }
 }
 
-module.exports = Deduce;
+class Container {
+  constructor() {
+    this.closedState = {};
+    this.deduce = (reducer) => {
+      return (state, action) => {
+        let update = reducer(state, action);
+        this.closedState.state = update;
+        if (update !== state) return update;
+        if (typeof state === 'number') {
+          this.closedState.state = switch_number(state, action)
+          return this.closedState.state;
+        }
+        if (typeof state === 'boolean') {
+          this.closedState.state = switch_boolean(state, action);
+          return this.closedState.state;
+        }
+        if (typeof state === 'string') {
+          this.closedState.state = switch_string(state, action);
+          return this.closedState.state;
+        }
+        if (Array.isArray(state)) {
+          this.closedState.state = switch_array(state, action);
+          return this.closedState.state;
+        }
+        if (typeof state === 'object') {
+          this.closedState.state = switch_object(state, action);
+          return this.closedState.state;
+        }
+      }
+    };
+    this.actions = new Actions(this.closedState);
+  }
+}
+
+const container = new Container();
+module.exports = {
+  deduce: container.deduce,
+  D: container.actions
+};

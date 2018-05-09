@@ -8,7 +8,7 @@ describe('Array_Boolean', () => {
           return state;
       }
     };
-    reducer = Deduce(reducer);
+    reducer = deduce(reducer);
   });
   it('TOGGLE_ALL', () => {
     expect(reducer(

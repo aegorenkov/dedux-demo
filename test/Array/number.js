@@ -7,7 +7,7 @@ describe('Array_Number', () => {
           return state;
       }
     };
-    reducer = Deduce(reducer);
+    reducer = deduce(reducer);
   });
 
   it('INCREMENT_ALL', () => {

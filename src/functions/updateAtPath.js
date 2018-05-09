@@ -11,9 +11,13 @@
 //   return newObj;
 // }
 function updateAtPath(path, obj, callback) {
+  //if no path return updated state
   if (path.length === 0) return callback(obj);
+
+  //base case no more object descendants
   if (typeof obj !== 'object') return obj;
 
+  //make a copy
   const newObj = Object.assign({}, obj);
   for (let key of Object.keys(obj)) {
     if (key.toUpperCase() === path[0]) {

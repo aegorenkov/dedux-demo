@@ -20,6 +20,9 @@ describe('actionTypeParser', () => {
     expect(verb).toEqual('ADD_TO');
     expect(path).toEqual('A');
   });
+  it('Should error for non-existent action', () => {
+    let { verb, path } = actionTypeParser('REMOVE_TO');
+  });
 });
 
 describe('updateAtPath', () => {

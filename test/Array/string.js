@@ -7,6 +7,6 @@ describe('Array_String', () => {
           return state;
       }
     };
-    reducer = Deduce(reducer);
+    reducer = deduce(reducer);
   });
 });
