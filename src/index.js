@@ -77,19 +77,19 @@ function switch_array(state, action) {
     case 'SET_ALL':
       return state.map((val) => action.value);
     case 'TOGGLE_IN':
-    if (action.index !== undefined) {
-      return [
-        ...state.slice(0, action.index),
-        !state[action.index],
-        ...state.slice(action.index + 1)
-      ];
-    }
-    if (action.where !== undefined) {
-      return state.map((el) => {
-        if (action.where(el)) return !el;
-        return el;
-      })
-    }
+      if (action.index !== undefined) {
+        return [
+          ...state.slice(0, action.index),
+          !state[action.index],
+          ...state.slice(action.index + 1)
+        ];
+      }
+      if (action.where !== undefined) {
+        return state.map((el) => {
+          if (action.where(el)) return !el;
+          return el;
+        })
+      }
     case 'TOGGLE_ALL':
       return state.map((el) => !el);
     case 'INCREMENT_IN':
@@ -107,19 +107,19 @@ function switch_array(state, action) {
         });
       }
     case 'DECREMENT_IN':
-    if (action.index !== undefined) {
-      return [
-        ...state.slice(0, action.index),
-        state[action.index] - action.value,
-        ...state.slice(action.index + 1)
-      ];
-    }
-    if (action.where !== undefined) {
-      return state.map((el) => {
-        if (action.where(el)) return el - action.value;
-        return el;
-      });
-    }
+      if (action.index !== undefined) {
+        return [
+          ...state.slice(0, action.index),
+          state[action.index] - action.value,
+          ...state.slice(action.index + 1)
+        ];
+      }
+      if (action.where !== undefined) {
+        return state.map((el) => {
+          if (action.where(el)) return el - action.value;
+          return el;
+        });
+      }
     case 'INSERT':
       return [
         ...state.slice(0, action.index),
@@ -137,17 +137,17 @@ function switch_array(state, action) {
     case 'MERGE_IN':
       if (action.index !== undefined) {
         return [...state.slice(0, action.index),
-          Object.assign({...state[action.index]}, action.value),
-          ...state.slice(action.index + 1)
+        Object.assign({ ...state[action.index] }, action.value),
+        ...state.slice(action.index + 1)
         ];
       }
       if (action.where !== undefined) {
         return state.map((obj) => {
-          if (action.where(obj)) return Object.assign({...obj}, action.value);
+          if (action.where(obj)) return Object.assign({ ...obj }, action.value);
           return obj;
         });
       }
-      
+
     default:
       return state;
   }
@@ -155,12 +155,13 @@ function switch_array(state, action) {
 
 function switch_object(state, action) {
   let { verb, path } = actionTypeParser(action.type);
+  const newObj = {}
 
   if (path) {
     //if (!updateAtPath(getPath(path, state), state, (el) => el)) return { ...state };
     if (verb === 'SET') {
       if (action.key !== undefined) {
-        return updateAtPath(getPath(path, state), state, (obj) => {return { ...obj, [action.key]: action.value }});
+        return updateAtPath(getPath(path, state), state, (obj) => { return { ...obj, [action.key]: action.value } });
       }
       if (action.where !== undefined) {
         return updateAtPath(getPath(path, state), state, (obj) => {
@@ -169,7 +170,7 @@ function switch_object(state, action) {
             if (action.where(key, val)) {
               newObj[key] = action.value;
             } else {
-              newObj[key] =  val;
+              newObj[key] = val;
             }
           });
           return newObj;
@@ -237,7 +238,7 @@ function switch_object(state, action) {
             if (action.where(key, val)) {
               newObj[key] = !val;
             } else {
-              newObj[key] =  val;
+              newObj[key] = val;
             }
           });
           return newObj;
@@ -245,7 +246,8 @@ function switch_object(state, action) {
       }
     }
     if (verb === 'MERGE_IN') {
-      return updateAtPath(getPath(path, state), state, (obj) => {
+      console.log('HERERREER')
+      return updateAtPath(test = getPath(path, state), state, (obj) => {
         if (Array.isArray(obj)) {
           return obj.map(value => {
             if (action.where(value)) {
@@ -266,7 +268,7 @@ function switch_object(state, action) {
       return updateAtPath(getPath(path, state), state, (obj) => {
         const newObj = {};
         Object.entries(obj).forEach(([key, subObj]) => {
-          newObj[key] = Object.assign({...subObj}, action.value);  
+          newObj[key] = Object.assign({ ...subObj }, action.value);
         })
         return newObj;
       });
@@ -311,7 +313,6 @@ function switch_object(state, action) {
 
   switch (action.type) {
     case 'SET_ALL':
-      const newObj = {};
       Object.keys(state).forEach((key) => {
         newObj[key] = action.value
       });
@@ -321,40 +322,46 @@ function switch_object(state, action) {
         return { ...state, [action.key]: action.value };
       }
       if (action.where !== undefined) {
-        let newObj = {};
         Object.entries(state).forEach(([key, val]) => {
           if (action.where(key, val)) {
             newObj[key] = action.value;
           } else {
-            newObj[key] =  val;
+            newObj[key] = val;
           }
         });
         return newObj;
       }
+    case 'MERGE_IN':
+      if (action.value) {
+        Object.entries(state).forEach(([key, subObj]) => {
+          newObj[key] = { ...subObj, ...action.value }
+        })
+        console.log(newObj)
+        return newObj
+      }
     case 'MERGE_ALL':
-    { let newObj = {};
       Object.entries(state).forEach(([key, subObj]) => {
-        newObj[key] = Object.assign({...subObj}, action.value);
+        console.log(subObj)
+        newObj[key] = Object.assign({ ...subObj }, action.value);
       });
-      return newObj;
-    }
+      return state;
     case 'MERGE':
-          return Object.assign({...state}, action.value);
+      return Object.assign({ ...state }, action.value);
     case 'REMOVE_ALL':
       return {};
     case 'REMOVE_IN':
-    if (action.key !== undefined) {
-      object = { ...state };
-      delete object[action.key];
-      return object;
-    }
-    if (action.where !== undefined) {
-      const newObj = {};
-      Object.entries(state).forEach(([key, val]) => {
-        if (!action.where(key, val)) newObj[key] =  val;
-      });
-      return newObj;
-    }
+      if (action.key !== undefined) {
+        object = { ...state };
+        delete object[action.key];
+        return object;
+      }
+      if (action.where !== undefined) {
+        const newObj = {};
+        Object.entries(state).forEach(([key, val]) => {
+          if (!action.where(key, val)) newObj[key] = val;
+        });
+        return newObj;
+      }
     case 'INCREMENT_IN':
       return { ...state, [action.key]: state[action.key] + action.value };
     case 'DECREMENT_IN':

@@ -27,21 +27,21 @@ describe('Object_Object', () => {
         0 : {text: 'Make todo list', completed: false }, 
         1 : {text: 'Check todo list', completed: false }
       }),
-      {type: 'MERGE_ALL', value: { completed: true }, key: 1 } 
+      {type: 'MERGE_IN', value: { completed: true } } 
     )).toEqual({ 
       0 : {text: 'Make todo list', completed: true }, 
       1 : {text: 'Check todo list', completed: true }
     });
-    expect(reducer(
-      deepFreeze({ 
-        0 : {text: 'Make todo list', completed: false }, 
-        1 : {text: 'Check todo list', completed: false }
-      }),
-      {type: 'MERGE_ALL', value: { completed: true }, where: (key, value) => key === 0 && value.completed === false } 
-    )).toEqual({ 
-      0 : {text: 'Make todo list', completed: true }, 
-      1 : {text: 'Check todo list', completed: true }
-    });
+    // expect(reducer(
+    //   deepFreeze({ 
+    //     0 : {text: 'Make todo list', completed: false }, 
+    //     1 : {text: 'Check todo list', completed: false }
+    //   }),
+    //   {type: 'MERGE_IN', value: { completed: true }, where: (key, value) => key === 0 && value.completed === false } 
+    // )).toEqual({ 
+    //   0 : {text: 'Make todo list', completed: true }, 
+    //   1 : {text: 'Check todo list', completed: true }
+    // });
   });
   it('MERGE_ALL_PATH', () => {
     expect(reducer(
