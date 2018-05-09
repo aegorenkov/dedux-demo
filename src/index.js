@@ -273,7 +273,6 @@ function switch_object(state, action) {
           if (action.key !== undefined) return { ...obj, [action.key]: action.value };
           if (action.where !== undefined) {
             const newObj = {};
-            console.log(obj)
             Object.entries(obj).forEach(([key, subObj]) => {
               if (action.where(key, subObj)) {
                 newObj[key] = Object.assign({ ...subObj }, action.value);
@@ -459,22 +458,22 @@ class Actions {
     return handleAction('SET_ALL', config, ['value'], this.closedState.state);
   }
   SET_IN(config) {
-    return handleAction('SET', config, ['value', 'in'], this.closedState.state);
+    return handleAction('SET_IN', config, ['value', 'in'], this.closedState.state);
   }
   SET(config) {
     return handleAction('SET', config, ['value'], this.closedState.state);
   }
   INCREMENT_ALL(config) {
-    return handleAction('SET', config, ['value'], this.closedState.state);
+    return handleAction('INCREMENT_ALL', config, ['value'], this.closedState.state);
   }
   INCREMENT_IN(config) {
-    return handleAction('SET', config, ['value', 'in'], this.closedState.state);
+    return handleAction('INCREMENT_IN', config, ['value', 'in'], this.closedState.state);
   }
   INCREMENT(config) {
-    return handleAction('SET', config, ['value'], this.closedState.state);
+    return handleAction('INCREMENT', config, ['value'], this.closedState.state);
   }
   DECREMENT_ALL(config) {
-    return handleAction('SET', config, ['value'], this.closedState.state);
+    return handleAction('DECREMENT_ALL', config, ['value'], this.closedState.state);
   }
   DECREMENT_IN(config) {
     return handleAction('DECREMENT_IN', config, ['value', 'in'], this.closedState.state);
