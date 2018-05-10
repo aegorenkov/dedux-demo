@@ -246,10 +246,14 @@ function switch_object(state, action) {
         });
       }
     }
+
+    if (verb === 'MERGE') {
+      return updateAtPath(getPath(path, state), state, (obj) => {
+        return Object.assign({ ...obj }, action.value)
+      })
+    }
+
     if (verb === 'MERGE_IN') {
-
-
-
       return updateAtPath(getPath(path, state), state, (obj) => {
         if (Array.isArray(obj)) {
           if (action.index) {
@@ -289,7 +293,8 @@ function switch_object(state, action) {
       return updateAtPath(getPath(path, state), state, (obj) => {
         //const newObj = {};
         Object.entries(obj).forEach(([key, subObj]) => {
-          newObj[key] = Object.assign({ ...subObj }, action.value);
+          if (Array.isArray(subObj)) newObj[key] = [ ...subObj]
+          else newObj[key] = Object.assign({ ...subObj }, action.value);
         })
         return newObj;
       });
@@ -515,7 +520,7 @@ class Actions {
     return handleAction('REMOVE_IN', config, ['in'], this.closedState.state);
   }
   REMOVE(config) {
-    return handleAction('REMOVE', config, ['in'], this.closedState.state);
+    return handleAction('REMOVE', config, [], this.closedState.state);
   }
   MERGE_ALL(config) {
     return handleAction('MERGE_ALL', config, ['value'], this.closedState.state);

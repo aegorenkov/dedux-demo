@@ -72,19 +72,4 @@ describe('Object_Object', () => {
       { type: 'MERGE_IN_ROOT_TODOS', value: { completed: true }, key: 1 }
     )).toEqual({ root: { todos: { 1: { text: 'Make todo list', completed: true } } } });
   });
-  it('MERGE_IN_PATH NESTED', () => {
-    expect(reducer(
-      deepFreeze({
-        players: { 
-          0: { "Alex": 5, },
-          1: { "Daniel": 4 },
-        }
-      }), { type: "MERGE_IN_PLAYERS", value: {"Alex": 4}, where: (key) => key === '0'}))
-      .toEqual({
-        players: { 
-          0: { "Alex": 4, },
-          1: { "Daniel": 4 },
-        }
-      })
-  });
 });

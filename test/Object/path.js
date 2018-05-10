@@ -95,4 +95,50 @@ describe('Object_Array', () => {
       { type: 'DECREMENT_IN_NUMBERS', where: value => value === 2, value: 1 }
     )).toEqual({ numbers: [0, 1, 1] });
   });
+  it('MERGE_{PATH}', () => {
+    expect(reducer(
+      deepFreeze(
+        { numbers: { "counts": [0, 1, 2] } }
+      ),
+      { type: 'MERGE_NUMBERS', value: { "test": 1 } }
+    )).toEqual({ numbers: { "counts": [0, 1, 2], "test": 1 } });
+  });
+  it('MERGE_ALL with PATH', () => {
+    expect(reducer(
+      deepFreeze(
+        { numbers: { "counts": [0, 1, 2] } }
+      ),
+      { type: 'MERGE_ALL_NUMBERS', value: { "test": 1 } }
+    )).toEqual({ numbers: { "counts": [0, 1, 2] } });
+  });
+  it('MERGE with double PATH', () => {
+    expect(reducer(
+      deepFreeze(
+        { "Country": { "US": { "New York": "NY" } } }
+      ),
+      { type: 'MERGE_COUNTRY_US', value: { "North Carolina": "NC" } }
+    )).toEqual({
+      "Country": {
+        "US": { 
+          "New York": "NY",
+          "North Carolina": "NC"
+        }
+      }
+    });
+  });
+  it('MERGE with double PATH', () => {
+    expect(reducer(
+      deepFreeze(
+        { "Country": { "US": { "New York": "NY" } } }
+      ),
+      { type: 'MERGE_COUNTRY_US', value: { "North Carolina": "NC" } }
+    )).toEqual({
+      "Country": {
+        "US": { 
+          "New York": "NY",
+          "North Carolina": "NC"
+        }
+      }
+    });
+  });
 });
