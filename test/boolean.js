@@ -21,4 +21,10 @@ describe('Boolean', () => {
       { type: 'TOGGLE' }
     )).toEqual(true);
   });
+  it('TOGGLE_PATH', () => {
+    expect(reducer(
+      {a:true, b:false}, 
+      { type: 'TOGGLE_A' }
+    )).toEqual({a:false, b:false});
+  });
 });

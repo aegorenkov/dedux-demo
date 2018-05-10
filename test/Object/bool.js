@@ -43,4 +43,10 @@ describe('Object_Boolean', () => {
       { type: 'TOGGLE_IN_TEST', value: false, where: (key, value) => key === 'a' && value === true }
     )).toEqual({ test: { a: false, b: false } });
   });
+  it('TOGGLE_ALL', () => {
+    expect(reducer(
+      {a:true, b:false}, 
+      { type: 'TOGGLE_ALL' }
+    )).toEqual({a:false, b:true});
+  });
 });

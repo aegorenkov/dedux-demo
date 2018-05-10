@@ -155,7 +155,7 @@ function switch_array(state, action) {
 
 function switch_object(state, action) {
   let { verb, path } = actionTypeParser(action.type);
-  const newObj = {}
+  let newObj = {}
 
   if (path) {
     //if (!updateAtPath(getPath(path, state), state, (el) => el)) return { ...state };
@@ -165,7 +165,7 @@ function switch_object(state, action) {
       }
       if (action.where !== undefined) {
         return updateAtPath(getPath(path, state), state, (obj) => {
-          const newObj = {};
+          //const newObj = {};
           Object.entries(obj).forEach(([key, val]) => {
             if (action.where(key, val)) {
               newObj[key] = action.value;
@@ -211,6 +211,7 @@ function switch_object(state, action) {
       }
     }
     if (verb === 'INCREMENT') return updateAtPath(getPath(path, state), state, (number) => number + action.value);
+    if (verb === 'DECREMENT') return updateAtPath(getPath(path, state), state, (number) => number - action.value);
     if (verb === 'TOGGLE') {
       return updateAtPath(getPath(path, state), state, (bool) => !bool);
     }
@@ -233,7 +234,7 @@ function switch_object(state, action) {
               return el;
             });
           }
-          const newObj = {};
+          //const newObj = {};
           Object.entries(obj).forEach(([key, val]) => {
             if (action.where(key, val)) {
               newObj[key] = !val;
@@ -272,7 +273,7 @@ function switch_object(state, action) {
           if (action.key !== undefined && typeof action.value === 'object') return { ...obj, [action.key]: Object.assign({ ...obj[action.key] }, action.value) };
           if (action.key !== undefined) return { ...obj, [action.key]: action.value };
           if (action.where !== undefined) {
-            const newObj = {};
+            //const newObj = {};
             Object.entries(obj).forEach(([key, subObj]) => {
               if (action.where(key, subObj)) {
                 newObj[key] = Object.assign({ ...subObj }, action.value);
@@ -286,7 +287,7 @@ function switch_object(state, action) {
     }
     if (verb === 'MERGE_ALL') {
       return updateAtPath(getPath(path, state), state, (obj) => {
-        const newObj = {};
+        //const newObj = {};
         Object.entries(obj).forEach(([key, subObj]) => {
           newObj[key] = Object.assign({ ...subObj }, action.value);
         })
@@ -330,7 +331,6 @@ function switch_object(state, action) {
       return updateAtPath(getPath(path, state), state, (arr) => arr.map(bool => !bool));
     }
   }
-
   switch (action.type) {
     case 'SET_ALL':
       Object.keys(state).forEach((key) => {
@@ -360,7 +360,7 @@ function switch_object(state, action) {
       }
     case 'MERGE_ALL':
       {
-        let newObj = {};
+        newObj = {};
         Object.entries(state).forEach(([key, subObj]) => {
           newObj[key] = Object.assign({ ...subObj }, action.value);
         });
@@ -372,12 +372,12 @@ function switch_object(state, action) {
       return {};
     case 'REMOVE_IN':
       if (action.key !== undefined) {
-        object = { ...state };
-        delete object[action.key];
-        return object;
+        newObj = { ...state };
+        delete newObj[action.key];
+        return newObj;
       }
       if (action.where !== undefined) {
-        const newObj = {};
+        //let newObj = {};
         Object.entries(state).forEach(([key, val]) => {
           if (!action.where(key, val)) newObj[key] = val;
         });
@@ -387,6 +387,12 @@ function switch_object(state, action) {
       return { ...state, [action.key]: state[action.key] + action.value };
     case 'DECREMENT_IN':
       return { ...state, [action.key]: state[action.key] - action.value };
+    case 'TOGGLE_ALL':
+      //let newObj = {};
+      Object.entries(state).forEach(([key, value]) => {
+        newObj[key] = !value;
+      });
+      return newObj;
     default:
       return state;
   }
@@ -435,7 +441,7 @@ function validatePayload(action, payload, required) {
     && payload.where === undefined) {
     throw new Error(`${action} should include either a key, index, or where property in the payload.`)
   }
-  if (required.includes('index')) {
+  if (required.includes('index') && payload.index === undefined) {
     throw new Error(`${action} should include either a key or index property in the payload.`)
   }
 }
@@ -482,13 +488,13 @@ class Actions {
     return handleAction('DECREMENT', config, ['value'], this.closedState.state);
   }
   TOGGLE_ALL(config) {
-    return handleAction('TOGGLE_ALL', config, ['value'], this.closedState.state);
+    return handleAction('TOGGLE_ALL', config, [], this.closedState.state);
   }
   TOGGLE_IN(config) {
-    return handleAction('TOGGLE_IN', config, ['value', 'in'], this.closedState.state);
+    return handleAction('TOGGLE_IN', config, ['in'], this.closedState.state);
   }
   TOGGLE(config) {
-    return handleAction('TOGGLE', config, ['value'], this.closedState.state);
+    return handleAction('TOGGLE', config, [], this.closedState.state);
   }
   ADD_TO(config) {
     return handleAction('ADD_TO', config, ['value'], this.closedState.state);
@@ -503,13 +509,13 @@ class Actions {
     return handleAction('INSERT', config, ['value'], this.closedState.state);
   }
   REMOVE_ALL(config) {
-    return handleAction('REMOVE_ALL', config, ['value'], this.closedState.state);
+    return handleAction('REMOVE_ALL', config, [], this.closedState.state);
   }
-  REMOVE_FROM(config) {
-    return handleAction('REMOVE_FROM', config, ['value'], this.closedState.state);
+  REMOVE_IN(config) {
+    return handleAction('REMOVE_IN', config, ['in'], this.closedState.state);
   }
   REMOVE(config) {
-    return handleAction('REMOVE', config, ['value'], this.closedState.state);
+    return handleAction('REMOVE', config, ['in'], this.closedState.state);
   }
   MERGE_ALL(config) {
     return handleAction('MERGE_ALL', config, ['value'], this.closedState.state);
