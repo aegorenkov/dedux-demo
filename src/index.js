@@ -8,18 +8,50 @@ const getPath = (path, state) => {
   return paths[0].split('_');
 }
 
-function where(state, filter, callback) {
+function insert(state, values, action) {
+  if (values === undefined) return state;
+  if (Array.isArray(state)) {
+    if (action.index) {
+      return [
+        ...state.slice(0, action.index),
+        ...values,
+        ...state.slice(action.index)
+      ];
+    }
+    return [...state, ...values];
+  }
+  if (typeof state === "object") {
+    return Object.assign({ ...state }, values)
+  }
+}
+
+function update(state, callback, predicate) {
   if (Array.isArray(state)) {
     return state.map((elem, idx) => {
-      if (filter(elem, idx)) return callback(elem);
+      if (predicate === undefined || predicate(elem, idx)) return callback(elem);
       return elem;
     });
   }
   if (typeof state === 'object' && state !== null) {
     const newObj = {};
     Object.entries(state).map(([key, value]) => {
-      if (filter(key, value)) newObj[key] = callback(key, value);
+      if (predicate === undefined || predicate(key, value)) newObj[key] = callback(key, value);
       else newObj[key] = value;
+    });
+    return newObj;
+  }
+}
+
+function del(state, predicate) {
+  if (Array.isArray(state)) {
+    if (predicate === undefined) return [];
+    return state.filter((elem, index) => !predicate(elem, index));
+  }
+  if (typeof state === 'object' && state !== null) {
+    if (predicate === undefined) return {};
+    const newObj = {};
+    Object.entries(state).map(([key, value]) => {
+      if (!predicate(key, value)) newObj[key] = value;
     });
     return newObj;
   }
@@ -65,78 +97,80 @@ function switch_array(state, action) {
     case 'CONCAT':
       return [...state, ...action.value];
     case 'REMOVE_ALL':
-      return [];
+      return del(state);
     case 'REMOVE_IN':
       if (action.where !== undefined) {
-        return state.filter((el) => !action.where(el));
+        return del(state, action.where)
       }
       if (action.index === undefined) action.index = state.length - 1;
       if (action.index !== undefined) {
-        return [
-          ...state.slice(0, action.index),
-          ...state.slice(action.index + 1)
-        ];
+        return del(state, (e, i) => i === action.index);
       }
     case 'SET_IN':
       if (action.index !== undefined) {
-        return where(state, (e, i) => i === action.index, () => action.value);
+        return update(state, () => action.value, (e, i) => i === action.index);
       }
       if (action.where !== undefined) {
-        return where(state, action.where, () => action.value);
+        return update(state, () => action.value, action.where);
       }
     case 'SET_ALL':
-      return state.map((val) => action.value);
+      return update(state, () => action.value);
     case 'TOGGLE_IN':
       if (action.index !== undefined) {
-        return where(state, (e, i) => i === action.index, el => !el);
+        return update(state, el => !el, (e, i) => i === action.index);
       }
       if (action.where !== undefined) {
-        return where(state, action.where, el => !el);
+        return update(state, el => !el, action.where);
       }
     case 'TOGGLE_ALL':
-      return state.map((el) => !el);
+      return update(state, el => !el);
     case 'INCREMENT_IN':
       if (action.index !== undefined) {
-        return where(state, (e, i) => i === action.index, el => el + action.value);
+        return update(state, el => el + action.value, (e, i) => i === action.index);
       }
       if (action.where !== undefined) {
-        return where(state, action.where, el => el + action.value);
+        return update(state, el => el + action.value, action.where);
       }
     case 'DECREMENT_IN':
       if (action.index !== undefined) {
-        return where(state, (e, i) => i === action.index, el => el - action.value);
+        return update(state, el => el - action.value, (e, i) => i === action.index);
       }
       if (action.where !== undefined) {
-        return where(state, action.where, el => el - action.value);
+        return update(state, el => el - action.value, action.where);
       }
+    case 'UPDATE_IN':
+      return update(state, action.set, action.where);
     case 'INSERT':
-      return [
-        ...state.slice(0, action.index),
-        action.value,
-        ...state.slice(action.index)
-      ];
+      // return insert(state, action.values, action)
+    return [
+      ...state.slice(0, action.index),
+      action.value,
+      ...state.slice(action.index)
+    ];
     case 'INCREMENT_ALL':
-      return state.map(value => value + action.value);
+      return update(state, el => el + action.value);
     case 'DECREMENT_ALL':
-      return state.map(value => value - action.value);
+      return update(state, el => el - action.value);
     case 'MERGE_ALL':
-      return state.map((obj) => {
-        return Object.assign({ ...obj }, action.value);
-      });
+      return update(
+        state,
+        obj => Object.assign({ ...obj }, action.value)
+      );
     case 'MERGE_IN':
       if (action.index !== undefined) {
-        return where(state, 
-          (e, i) => i === action.index, 
-          el => Object.assign({ ...el }, action.value)
+        return update(
+          state,
+          el => Object.assign({ ...el }, action.value),
+          (e, i) => i === action.index
         );
       }
       if (action.where !== undefined) {
-        return where(state, 
-          action.where, 
-          el => Object.assign({ ...el }, action.value)
+        return update(
+          state,
+          el => Object.assign({ ...el }, action.value),
+          action.where
         );
       }
-
     default:
       return state;
   }
@@ -149,53 +183,81 @@ function switch_object(state, action) {
   if (path) {
     if (verb === 'SET') {
       if (action.key !== undefined) {
-        return updateAtPath(getPath(path, state), state, (obj) => { return { ...obj, [action.key]: action.value } });
+        return updateAtPath(
+          getPath(path, state),
+          state,
+          obj => { return { ...obj, [action.key]: action.value } }
+        );
       }
       if (action.where !== undefined) {
         return updateAtPath(
-          getPath(path, state), 
-          state, 
-          (obj) => where(obj, action.where, () => action.value)
+          getPath(path, state),
+          state,
+          (obj) => update(obj, () => action.value, action.where)
         );
       }
       return updateAtPath(getPath(path, state), state, () => action.value)
     }
-    if (verb === 'INCREMENT_ALL') return updateAtPath(getPath(path, state), state, (arr) => arr.map(num => num + action.value));
+    if (verb === 'INCREMENT_ALL') {
+      return updateAtPath(
+        getPath(path, state),
+        state,
+        arr => update(arr, el => el + action.value)
+      );
+    }
     if (verb === 'INCREMENT_IN') {
       if (action.index !== undefined) {
         return updateAtPath(
-          getPath(path, state), 
+          getPath(path, state),
           state,
-          (arr) => where(arr, (e, i) => i === action.index, el => el + action.value)  
+          arr => update(arr, el => el + action.value, (e, i) => i === action.index)
         );
       }
       if (action.where !== undefined) {
         return updateAtPath(
-          getPath(path, state), 
+          getPath(path, state),
           state,
-          (arr) => where(arr, action.where, el => el + action.value)  
+          (arr) => update(arr, el => el + action.value, action.where)
         );
       }
     }
-    if (verb === 'DECREMENT_ALL') return updateAtPath(getPath(path, state), state, (arr) => arr.map(num => num - action.value));
+    if (verb === 'DECREMENT_ALL') {
+      return updateAtPath(
+        getPath(path, state),
+        state,
+        arr => update(arr, el => el - action.value)
+      );
+    }
     if (verb === 'DECREMENT_IN') {
       if (action.index !== undefined) {
         return updateAtPath(
-          getPath(path, state), 
+          getPath(path, state),
           state,
-          (arr) => where(arr, (e, i) => i === action.index, el => el - action.value )
+          (arr) => update(arr, el => el - action.value, (e, i) => i === action.index)
         );
       }
       if (action.where !== undefined) {
         return updateAtPath(
-          getPath(path, state), 
+          getPath(path, state),
           state,
-          (arr) => where(arr, action.where, el => el - action.value)
+          (arr) => update(arr, el => el - action.value, action.where)
         );
       }
     }
-    if (verb === 'INCREMENT') return updateAtPath(getPath(path, state), state, (number) => number + action.value);
-    if (verb === 'DECREMENT') return updateAtPath(getPath(path, state), state, (number) => number - action.value);
+    if (verb === 'INCREMENT') {
+      return updateAtPath(
+        getPath(path, state),
+        state,
+        number => number + action.value
+      );
+    }
+    if (verb === 'DECREMENT') {
+      return updateAtPath(
+        getPath(path, state),
+        state,
+        number => number - action.value
+      );
+    }
     if (verb === 'TOGGLE') {
       return updateAtPath(getPath(path, state), state, (bool) => !bool);
     }
@@ -204,34 +266,36 @@ function switch_object(state, action) {
         return updateAtPath(
           getPath(path, state),
           state,
-          arr => where(arr, (e, i) => i === action.index, el => !el)
+          arr => update(arr, el => !el, (e, i) => i === action.index)
         );
       }
       if (action.key !== undefined) {
         return updateAtPath(
           getPath(path, state),
           state,
-          obj => where(obj, (k, v) => k === action.key, el => !el)
+          obj => update(obj, el => !el, (k, v) => k === action.key)
         );
       }
       if (action.where !== undefined) {
         return updateAtPath(getPath(path, state), state, (obj) => {
-          return where(obj, action.where, el => !el);
+          return update(obj, el => !el, action.where);
         });
       }
     }
 
     if (verb === 'MERGE') {
-      return updateAtPath(getPath(path, state), state, (obj) => {
-        return Object.assign({ ...obj }, action.value)
-      })
+      return updateAtPath(
+        getPath(path, state),
+        state,
+        obj => { return Object.assign({ ...obj }, action.value) }
+      );
     }
 
     if (verb === 'MERGE_IN') {
       return updateAtPath(getPath(path, state), state, (obj) => {
         if (Array.isArray(obj)) {
           if (action.index) {
-            let newState = [ ...obj ];
+            let newState = [...obj];
             newState[action.index] = Object.assign({ ...newState[action.index] }, action.value);
             return newState;
           }
@@ -265,7 +329,7 @@ function switch_object(state, action) {
     if (verb === 'MERGE_ALL') {
       return updateAtPath(getPath(path, state), state, (obj) => {
         Object.entries(obj).forEach(([key, subObj]) => {
-          if (Array.isArray(subObj)) newObj[key] = [ ...subObj]
+          if (Array.isArray(subObj)) newObj[key] = [...subObj]
           else newObj[key] = Object.assign({ ...subObj }, action.value);
         })
         return newObj;
@@ -278,102 +342,122 @@ function switch_object(state, action) {
       return updateAtPath(getPath(path, state), state, (arr) => [...arr.slice(0, action.index), action.value, ...arr.slice(action.index)]);
     }
     if (verb === 'REMOVE_ALL') {
-      return updateAtPath(getPath(path, state), state, (arr) => []);
+      return updateAtPath(getPath(path, state), state, (arr) => del(arr));
     }
     if (verb === 'REMOVE_FROM') {
       if (action.index !== undefined) {
-        return updateAtPath(getPath(path, state), state, (arr) => [...arr.slice(0, action.index), ...arr.slice(action.index + 1)]);
+        return updateAtPath(
+          getPath(path, state),
+          state,
+          (arr) => del(arr, (e, i) => i === action.index)
+        );
       }
       if (action.where !== undefined) {
-        return updateAtPath(getPath(path, state), state, (arr) => arr.filter(el => !action.where(el)));
+        return updateAtPath(
+          getPath(path, state),
+          state,
+          (arr) => del(arr, action.where)
+        );
       }
     }
     if (verb === 'SET_ALL') {
-      return updateAtPath(getPath(path, state), state, (arr) => arr.map(el => action.value));
+      return updateAtPath(
+        getPath(path, state),
+        state,
+        arr => update(arr, el => action.value)
+      );
     }
     if (verb === 'SET_IN') {
       if (action.index !== undefined) {
         return updateAtPath(
-          getPath(path, state), 
+          getPath(path, state),
           state,
-          arr => where(arr, (e, i) => i === action.index, () => action.value) 
+          arr => update(arr, () => action.value, (e, i) => i === action.index)
         );
       }
       if (action.where !== undefined) {
         return updateAtPath(
-          getPath(path, state), 
-          state, 
-          arr => where(arr, action.where, () => action.value)
+          getPath(path, state),
+          state,
+          arr => update(arr, () => action.value, action.where)
         );
       }
     }
     if (verb === 'TOGGLE_ALL') {
-      return updateAtPath(getPath(path, state), state, (arr) => arr.map(bool => !bool));
+      return updateAtPath(
+        getPath(path, state),
+        state,
+        arr => update(arr, bool => !bool)
+      );
     }
   }
   switch (action.type) {
     case 'SET_ALL':
-      Object.keys(state).forEach((key) => {
-        newObj[key] = action.value
-      });
-      return newObj;
+      return update(state, () => action.value)
     case 'SET_IN':
       if (action.key !== undefined) {
-        return { ...state, [action.key]: action.value };
+        return insert(state, { [action.key]: action.value });
       }
       if (action.where !== undefined) {
-        return where(state, action.where, () => action.value);
+        return update(state, () => action.value, action.where);
       }
     case 'MERGE_IN':
-      if (action.value) {
-        Object.entries(state).forEach(([key, subObj]) => {
-          newObj[key] = { ...subObj, ...action.value }
-        })
-        return newObj
-      }
-    case 'MERGE_ALL':
-      {
-        newObj = {};
-        Object.entries(state).forEach(([key, subObj]) => {
-          newObj[key] = Object.assign({ ...subObj }, action.value);
-        });
-        return newObj;
-      }
-    case 'MERGE':
-      return Object.assign({ ...state }, action.value);
-    case 'REMOVE_ALL':
-      return {};
-    case 'REMOVE_IN':
       if (action.key !== undefined) {
-        newObj = { ...state };
-        delete newObj[action.key];
-        return newObj;
+        return update(
+          state,
+          (key, subObj) => Object.assign({ ...subObj }, action.value),
+          (k, v) => k === action.key
+        );
       }
       if (action.where !== undefined) {
-        Object.entries(state).forEach(([key, val]) => {
-          if (!action.where(key, val)) newObj[key] = val;
-        });
-        return newObj;
+        return update(
+          state,
+          (key, subObj) => Object.assign({ ...subObj }, action.value),
+          action.where
+        );
+      }
+    case 'MERGE_ALL':
+      return update(
+        state,
+        (key, subObj) => Object.assign({ ...subObj }, action.value)
+      );
+    case 'MERGE':
+      return insert(state, action.value)
+    case 'REMOVE_ALL':
+      return del(state);
+    case 'REMOVE_IN':
+      if (action.key !== undefined) {
+        return del(state, (k, v) => k === action.key);
+      }
+      if (action.where !== undefined) {
+        return del(state, action.where);
       }
     case 'INCREMENT_IN':
       if (action.key !== undefined) {
-        return where(state, (key) => key === action.key, (k, v) => v + action.value);
+        return update(state, (k, v) => v + action.value, (key) => key === action.key);
       }
       if (action.where !== undefined) {
-        return where(state, action.where, (k, v) => v + action.value);
+        return update(state, (k, v) => v + action.value, action.where);
       }
     case 'DECREMENT_IN':
       if (action.key !== undefined) {
-        return where(state, (key) => key === action.key, (k, v) => v - action.value);
+        return update(state, (k, v) => v - action.value, (key) => key === action.key);
       }
       if (action.where !== undefined) {
-        return where(state, action.where, (k, v) => v - action.value);
+        return update(state, (k, v) => v - action.value, action.where);
+      }
+    case 'TOGGLE_IN':
+      if (action.key !== undefined) {
+        return update(state, (k, bool) => !bool, (key) => key === action.key);
+      }
+      if (action.where !== undefined) {
+        return update(state, (k, bool) => !bool, action.where);
       }
     case 'TOGGLE_ALL':
-      Object.entries(state).forEach(([key, value]) => {
-        newObj[key] = !value;
-      });
-      return newObj;
+      return update(
+        state,
+        (k, bool) => !bool
+      );
     default:
       return state;
   }
@@ -463,6 +547,9 @@ class Actions {
   }
   INSERT(config) {
     return handleAction('INSERT', config, ['value'], this.closedState.state);
+  }
+  UPDATE_IN(config) {
+    return handleAction('UPDATE_IN', config, ['in'], this.closedState.state);
   }
   REMOVE_ALL(config) {
     return handleAction('REMOVE_ALL', config, [], this.closedState.state);

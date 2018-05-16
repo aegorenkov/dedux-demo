@@ -32,6 +32,14 @@ describe('Object_Object', () => {
       0: { text: 'Make todo list', completed: true },
       1: { text: 'Check todo list', completed: true }
     });
+    expect(reducer(
+      deepFreeze({ a: { x: 0 }, b: { y: 0 }, c: { z: 0 } }),
+      { type: 'MERGE_IN', value: { d: 4 }, key: 'a' }
+    )).toEqual({ a: { x: 0, d: 4 }, b: { y: 0 }, c: { z: 0 } });
+    expect(reducer(
+      deepFreeze({ a: { x: 0 }, b: { y: 0 }, c: { z: 0 } }),
+      { type: 'MERGE_IN', value: { d: 4 }, where: (k, v) => k === 'a' }
+    )).toEqual({ a: { x: 0, d: 4 }, b: { y: 0 }, c: { z: 0 } });
     // expect(reducer(
     //   deepFreeze({ 
     //     0 : {text: 'Make todo list', completed: false }, 
