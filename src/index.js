@@ -1,6 +1,9 @@
 const actionTypeParser = require('./functions/actionTypeParser');
 const updateAtPath = require('./functions/updateAtPath');
 const findPath = require('./functions/findPath');
+const processState = require('./proxy')
+const checkForEntities = require('./functions/checkForEntities')
+const { replace } = require('./symbols')
 const getPath = (path, state) => {
   const paths = findPath(path, state);
   if (paths.length === 0) throw new Error('Path not found.');
@@ -257,7 +260,7 @@ function switch_object(state, action) {
       return updateAtPath(getPath(path, state), state, (obj) => {
         if (Array.isArray(obj)) {
           if (action.index) {
-            let newState = [ ...obj ];
+            let newState = [...obj];
             newState[action.index] = Object.assign({ ...newState[action.index] }, action.value);
             return newState;
           }
@@ -293,7 +296,7 @@ function switch_object(state, action) {
       return updateAtPath(getPath(path, state), state, (obj) => {
         //const newObj = {};
         Object.entries(obj).forEach(([key, subObj]) => {
-          if (Array.isArray(subObj)) newObj[key] = [ ...subObj]
+          if (Array.isArray(subObj)) newObj[key] = [...subObj]
           else newObj[key] = Object.assign({ ...subObj }, action.value);
         })
         return newObj;
@@ -537,10 +540,14 @@ class Container {
   constructor() {
     this.closedState = {};
     this.deduce = (reducer) => {
+      const initialState = reducer(undefined, {})
+      const shouldNormalize = checkForEntities(initialState)
+      let proxied = shouldNormalize && processState(initialState)
       return (state, action) => {
         let update = reducer(state, action);
-        this.closedState.state = update;
-        if (update !== state) return update;
+        proxied = shouldNormalize ? proxied[replace](update) : update
+        this.closedState.state = proxied;
+        if (proxied !== state) return proxied;
         if (typeof state === 'number') {
           this.closedState.state = switch_number(state, action)
           return this.closedState.state;
