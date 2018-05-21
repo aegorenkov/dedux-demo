@@ -2,6 +2,8 @@ const actionTypeParser = require('../src/functions/actionTypeParser');
 const updateAtPath = require('../src/functions/updateAtPath');
 const findPath = require('../src/functions/findPath');
 const deepFreeze = require('deep-freeze');
+const checkForEntities = require('../src/functions/checkForEntities')
+const { entity } = require('../src/symbols')
 
 
 describe('actionTypeParser', () => {
@@ -82,9 +84,26 @@ describe('findPath', () => {
   });
   it('Should not traverse arrays', () => {
     const state = {
-      "example": [ {"test": true} ],
+      "example": [{ "test": true }],
       "test": true
     };
     expect(findPath("TEST", state)).toEqual(['TEST'])
+  })
+})
+
+describe('checkForEntities', () => {
+  it('returns true when there is an entity tag in the state', () => {
+    const state = {
+      foo: [1, 2, 3],
+      bar: { [entity]: 'Test', it: 'other' }
+    }
+    expect(checkForEntities(state)).toEqual(true)
+  })
+  it('returns false when there is no entity tag in the state', () => {
+    const state = {
+      foo: [1, 2, 3],
+      bar: { it: 'other' }
+    }
+    expect(checkForEntities(state)).toEqual(false)
   })
 })
