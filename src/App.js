@@ -8,7 +8,7 @@ import DevTools from './DevTools'
 import { D as De } from 'dedux';
 import { connect } from 'react-redux';
 
-const store = configureStore(3)
+const store = configureStore('Initial State');
 
 const mapStateToProps = (state) => {
   return { state };
