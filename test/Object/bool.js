@@ -12,15 +12,15 @@ describe('Object_Boolean', () => {
   it('SET_PATH', () => {
     expect(reducer(
       deepFreeze({ a: true, b: false }),
-      { type: 'SET_A', value: false }
+      { type: 'SET_IN_A', value: false }
     )).toEqual({ a: false, b: false });
     expect(reducer(
       deepFreeze({ test: { a: true, b: false } }),
-      { type: 'SET_TEST', value: false, key: 'a' }
+      { type: 'SET_IN_TEST', value: false, key: 'a' }
     )).toEqual({ test: { a: false, b: false } });
     expect(reducer(
       deepFreeze({ test: { a: true, b: false } }),
-      { type: 'SET_TEST', value: true, where: (key, value) => key === 'b' && value === false }
+      { type: 'SET_IN_TEST', value: true, where: (key, value) => key === 'b' && value === false }
     )).toEqual({ test: { a: true, b: true } });
   });
   it('TOGGLE_PATH', () => {

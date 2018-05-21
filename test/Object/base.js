@@ -15,7 +15,7 @@ describe('Object', () => {
         items:[],
         author:'',
         text: ''
-      }), { type: 'SET_AUTHOR', value: 'Daniel'})).toEqual({
+      }), { type: 'SET_IN_AUTHOR', value: 'Daniel'})).toEqual({
         items:[],
         author:'Daniel',
         text: ''

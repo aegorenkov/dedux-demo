@@ -4,6 +4,10 @@ const findPath = require('./functions/findPath');
 const processState = require('./proxy')
 const checkForEntities = require('./functions/checkForEntities')
 const { replace } = require('./symbols')
+
+/**
+ * Helper functions
+ */
 const getPath = (path, state) => {
   const paths = findPath(path, state);
   if (paths.length === 0) throw new Error('Path not found.');
@@ -59,6 +63,10 @@ function del(state, predicate) {
     return newObj;
   }
 }
+
+/**
+ * Sub reducers that are selected depending on the type of the root state
+ */
 
 function switch_number(state, action) {
   switch (action.type) {
@@ -184,12 +192,19 @@ function switch_object(state, action) {
   let newObj = {}
 
   if (path) {
-    if (verb === 'SET') {
+    if (verb === 'SET_IN') {
       if (action.key !== undefined) {
         return updateAtPath(
           getPath(path, state),
           state,
           obj => { return { ...obj, [action.key]: action.value } }
+        );
+      }
+      if (action.index !== undefined) {
+        return updateAtPath(
+          getPath(path, state),
+          state,
+          (obj) => update(obj, () => action.value, (e, i) => i === action.index)
         );
       }
       if (action.where !== undefined) {
@@ -370,22 +385,22 @@ function switch_object(state, action) {
         arr => update(arr, el => action.value)
       );
     }
-    if (verb === 'SET_IN') {
-      if (action.index !== undefined) {
-        return updateAtPath(
-          getPath(path, state),
-          state,
-          arr => update(arr, () => action.value, (e, i) => i === action.index)
-        );
-      }
-      if (action.where !== undefined) {
-        return updateAtPath(
-          getPath(path, state),
-          state,
-          arr => update(arr, () => action.value, action.where)
-        );
-      }
-    }
+    // if (verb === 'SET_IN') {
+    //   if (action.index !== undefined) {
+    //     return updateAtPath(
+    //       getPath(path, state),
+    //       state,
+    //       arr => update(arr, () => action.value, (e, i) => i === action.index)
+    //     );
+    //   }
+    //   if (action.where !== undefined) {
+    //     return updateAtPath(
+    //       getPath(path, state),
+    //       state,
+    //       arr => update(arr, () => action.value, action.where)
+    //     );
+    //   }
+    // }
     if (verb === 'TOGGLE_ALL') {
       return updateAtPath(
         getPath(path, state),
@@ -466,6 +481,10 @@ function switch_object(state, action) {
   }
 }
 
+/***
+* Overall organization and exported classes
+**/
+
 function checkPath(path, state) {
   if (path) {
     let paths = findPath(path, state);
@@ -484,9 +503,9 @@ function validatePayload(action, payload, required) {
     && payload.where === undefined) {
     throw new Error(`${action} should include either a key, index, or where property in the payload.`)
   }
-  if (required.includes('index') && payload.index === undefined) {
-    throw new Error(`${action} should include either a key or index property in the payload.`)
-  }
+  // if (required.includes('index') && payload.index === undefined) {
+  //   throw new Error(`${action} should include either a key or index property in the payload.`)
+  // }
 }
 function handleAction(action, config, required, state) {
   if (!config) throw new Error('All actions need to have a configuration object.');
@@ -602,7 +621,7 @@ class Container {
           this.closedState.state = switch_array(state, action);
           return this.closedState.state;
         }
-        if (typeof state === 'object') {
+        if (typeof state === 'object' && state !== null) {
           this.closedState.state = switch_object(state, action);
           return this.closedState.state;
         }
